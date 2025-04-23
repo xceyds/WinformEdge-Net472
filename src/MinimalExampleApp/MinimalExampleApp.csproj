@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup Label="Globals">
+      <WebView2LoaderPreference>Static</WebView2LoaderPreference>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <UseWindowsForms>true</UseWindowsForms>
+        <ImplicitUsings>enable</ImplicitUsings>
+
+
+        <ApplicationVisualStyles>true</ApplicationVisualStyles>
+        <ApplicationUseCompatibleTextRendering>true</ApplicationUseCompatibleTextRendering>
+        <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+        <ApplicationDefaultFont>Segoe UI,9pt</ApplicationDefaultFont>
+        <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\WinFormedge\WinFormedge.csproj" />
+    </ItemGroup>
+
+</Project>

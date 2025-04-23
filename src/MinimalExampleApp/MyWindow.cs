@@ -1,0 +1,32 @@
+﻿using WinFormedge;
+using Microsoft.Web.WebView2.Core;
+
+namespace MinimalExampleApp;
+internal class MyWindow : Formedge
+{
+    public MyWindow()
+    {
+        ExtendsContentIntoTitleBar = true;
+
+        Url = "https://cn.bing.com";
+        Size = new Size(1440, 900);
+
+        Load += MyWindow_Load;
+        DOMContentLoaded += MyWindow_DOMContentLoaded;
+    }
+
+    private void MyWindow_Load(object? sender, EventArgs e)
+    {
+    }
+
+    private void MyWindow_DOMContentLoaded(object? sender, CoreWebView2DOMContentLoadedEventArgs e)
+    {
+        ExecuteScriptAsync(""""
+(()=>{
+const headerEl = document.querySelector("#hdr");
+//headerEl.querySelectorAll(":scope>div").forEach(c=>c.style.appRegion="no-drag");
+headerEl.style.appRegion="drag";
+})();
+"""");
+    }
+}

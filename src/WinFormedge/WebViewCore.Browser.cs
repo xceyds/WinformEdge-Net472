@@ -1,0 +1,102 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace WinFormedge;
+partial class WebViewCore
+{
+    private const string ABOUT_BLANK = "about:blank";
+
+    private string? _defferedUrl;
+
+    private CoreWebView2Controller? _controller;
+
+    public event EventHandler? WebViewCreated;
+
+    public event Action<CoreWebView2Settings>? ConfigureSettings;
+
+    public bool Initialized => _controller != null;
+
+    internal CoreWebView2Environment WebViewEnvironment => FormedgeApp.Current!.WebView2Environment;
+    internal CoreWebView2Controller Controller => _controller ?? throw new NullReferenceException(nameof(Controller));
+    internal CoreWebView2? Browser => _controller?.CoreWebView2;
+
+    private async void CreateWebView2()
+    {
+        var opts = WebViewEnvironment.CreateCoreWebView2ControllerOptions();
+
+        opts.ScriptLocale = FormedgeApp.Current.CultureName;
+        opts.ProfileName = Application.ProductName;
+        
+
+        var controller = _controller = await WebViewEnvironment.CreateCoreWebView2ControllerAsync(Container.Handle, opts);
+
+        if (controller == null || controller.CoreWebView2 == null)
+        {
+            throw new InvalidOperationException("Failed to create WebView2 controller.");
+        }
+        
+        controller.ShouldDetectMonitorScaleChanges = true;
+        controller.Bounds = Container.ClientRectangle;
+        
+
+        var webview = controller!.CoreWebView2;
+
+        webview.Settings.AreBrowserAcceleratorKeysEnabled = false;
+        webview.Settings.AreDefaultScriptDialogsEnabled = true;
+        webview.Settings.IsGeneralAutofillEnabled = false;
+        webview.Settings.IsPasswordAutosaveEnabled = false;
+        webview.Settings.IsZoomControlEnabled = false;
+        webview.Settings.IsStatusBarEnabled = false;
+        webview.Settings.IsSwipeNavigationEnabled = false;
+        webview.Settings.IsReputationCheckingRequired = false;
+        webview.Settings.IsPinchZoomEnabled = false;
+        webview.Settings.IsNonClientRegionSupportEnabled = true;
+        
+        
+
+        ConfigureSettings?.Invoke(webview.Settings);
+
+
+        webview.Profile.PreferredColorScheme = FormedgeApp.Current.SystemColorMode switch
+        {
+            SystemColorMode.Dark => CoreWebView2PreferredColorScheme.Dark,
+            SystemColorMode.Auto => CoreWebView2PreferredColorScheme.Auto,
+            _ => CoreWebView2PreferredColorScheme.Light,
+        };
+
+
+        Container.VisibleChanged += (_, _) =>
+        {
+            Controller.IsVisible = Container.Visible;
+        };
+
+        Container.Move += (_, _) =>
+        {
+            Controller.Bounds = Container.ClientRectangle;
+        };
+
+        Container.Resize += (_, _) =>
+        {
+            Controller.Bounds = Container.ClientRectangle;
+        };
+
+        WebViewCreated?.Invoke(Container, EventArgs.Empty);
+
+        
+
+        webview.Navigate(_defferedUrl ?? ABOUT_BLANK);
+
+        controller.MoveFocus(CoreWebView2MoveFocusReason.Programmatic);
+
+        _defferedUrl = null;
+    }
+
+
+
+    
+}
+
+
