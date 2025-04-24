@@ -1,4 +1,6 @@
-﻿using WinFormedge;
+﻿using System.Runtime.InteropServices;
+
+using WinFormedge;
 
 namespace MinimalExampleApp;
 
@@ -10,14 +12,15 @@ internal static class Program
     [STAThread]
     static void Main()
     {
+
         ApplicationConfiguration.Initialize();
 
-
-        var app = FormedgeApp.CreateBuilder()
+        var app = FormedgeApp.CreateAppBuilder()
             .UseCulture(Application.CurrentCulture.Name)
             .UseDevTools()
-            .UseModernScrollbarStyle()
-            .UseWinFormedgeApp<MyFormedgeApp>().Build();
+            .UseModernStyleScrollbar()
+            .UseWinFormedgeApp<MyFormedgeApp>()
+            .Build();
 
         app.Run();
             

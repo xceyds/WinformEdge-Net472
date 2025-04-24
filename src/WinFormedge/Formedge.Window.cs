@@ -52,12 +52,12 @@ public partial class Formedge : IWin32Window
 
             if (WebView.Browser != null)
             {
-                WebView.Browser.Settings.IsNonClientRegionSupportEnabled = IsPopupStyle || ExtendsContentIntoTitleBar;
+                WebView.Browser.Settings.IsNonClientRegionSupportEnabled = UseAsPopup || ExtendsContentIntoTitleBar;
             }
         }
     }
 
-    public bool IsPopupStyle
+    public bool UseAsPopup
     {
         get => HostWindow.Popup;
         set
@@ -66,7 +66,7 @@ public partial class Formedge : IWin32Window
 
             if (WebView.Browser != null)
             {
-                WebView.Browser.Settings.IsNonClientRegionSupportEnabled = IsPopupStyle || ExtendsContentIntoTitleBar;
+                WebView.Browser.Settings.IsNonClientRegionSupportEnabled = UseAsPopup || ExtendsContentIntoTitleBar;
             }
         }
     }

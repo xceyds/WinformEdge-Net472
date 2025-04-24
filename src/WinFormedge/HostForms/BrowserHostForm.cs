@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.InteropServices;
@@ -492,16 +493,18 @@ public class BrowserHostForm : Form
         return placement.showCmd == SHOW_WINDOW_CMD.SW_MAXIMIZE;
     }
 
-    private void AdjustMaximizedClientRect(HWND hwnd, ref RECT rect)
+    private bool AdjustMaximizedClientRect(HWND hwnd, ref RECT rect)
     {
-        if (!IsMaximized(hwnd)) return;
+        if (!IsMaximized(hwnd)) return false;
 
 
         var screen = Screen.FromHandle(Handle);
 
-        if (screen is null) return;
+        if (screen is null) return false;
 
         rect = screen.WorkingArea;
+
+        return true;
     }
 
 
@@ -601,11 +604,12 @@ public class BrowserHostForm : Form
 
             cp.ClassStyle |= (int)(WNDCLASS_STYLES.CS_HREDRAW & WNDCLASS_STYLES.CS_VREDRAW);
 
-            cp.ExStyle |= (int)WINDOW_EX_STYLE.WS_EX_TRANSPARENT;
+            cp.ExStyle |= (int)WINDOW_EX_STYLE.WS_EX_COMPOSITED;
 
             return cp;
         }
     }
+
 
     protected override void WndProc(ref Message m)
     {
@@ -619,13 +623,25 @@ public class BrowserHostForm : Form
                     EnableNonClientDpiScaling((HWND)m.HWnd);
                 }
                 break;
+            //case WM_NCCALCSIZE when wParam == 0 && ExtendsContentIntoTitleBar && !Popup && !Fullscreen:
+            //    {
+            //        var rect = Marshal.PtrToStructure<RECT>(lParam);
+            //        AdjustClientRect(ref rect);
+
+            //        Marshal.StructureToPtr(rect, m.LParam, false);
+
+            //    }
+            //    break;
             case WM_NCCALCSIZE when wParam == 1 && ExtendsContentIntoTitleBar && !Popup && !Fullscreen:
                 {
                     var nccalc = Marshal.PtrToStructure<NCCALCSIZE_PARAMS>(lParam);
 
-                    AdjustMaximizedClientRect((HWND)m.HWnd, ref nccalc.rgrc._0);
+                    if (!AdjustMaximizedClientRect((HWND)m.HWnd, ref nccalc.rgrc._0))
+                    {
+                        //OnNcResize(nccalc.rgrc._0.Width, nccalc.rgrc._0.Height);
+                    }
 
-                    Marshal.StructureToPtr(nccalc, m.LParam, true);
+                    Marshal.StructureToPtr(nccalc, m.LParam, false);
                 }
                 return;
             case WM_NCHITTEST:
@@ -644,8 +660,6 @@ public class BrowserHostForm : Form
 
         base.WndProc(ref m);
     }
-
-
 
     protected override void DefWndProc(ref Message m)
     {

@@ -31,7 +31,7 @@ partial class WebViewCore
         opts.ProfileName = Application.ProductName;
         
 
-        var controller = _controller = await WebViewEnvironment.CreateCoreWebView2ControllerAsync(Container.Handle, opts);
+        var controller = _controller = await WebViewEnvironment.CreateCoreWebView2ControllerAsync(Container.Handle);
 
         if (controller == null || controller.CoreWebView2 == null)
         {
@@ -54,8 +54,7 @@ partial class WebViewCore
         webview.Settings.IsReputationCheckingRequired = false;
         webview.Settings.IsPinchZoomEnabled = false;
         webview.Settings.IsNonClientRegionSupportEnabled = true;
-        
-        
+
 
         ConfigureSettings?.Invoke(webview.Settings);
 
@@ -80,7 +79,15 @@ partial class WebViewCore
 
         Container.Resize += (_, _) =>
         {
+
+            //if (_patchResizingIfNeeded)
+            //{
+            //    Thread.Sleep(10);
+            //    _patchResizingIfNeeded = false;
+            //}
+            
             Controller.Bounds = Container.ClientRectangle;
+
         };
 
         WebViewCreated?.Invoke(Container, EventArgs.Empty);

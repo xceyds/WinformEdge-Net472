@@ -11,7 +11,14 @@
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
         <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     </PropertyGroup>
+
     <ItemGroup>
+      <Compile Remove="FakesAssemblies\**" />
+      <EmbeddedResource Remove="FakesAssemblies\**" />
+      <None Remove="FakesAssemblies\**" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.QualityTools.Testing.Fakes" Version="17.5.0-beta.23060.1" />
         <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
         <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183">
             <PrivateAssets>all</PrivateAssets>
@@ -25,4 +32,8 @@
         <Description>A library based on Microsoft WebView2 that can buid powerful WinForms applications with HTML, CSS and JavaScript easily.</Description>
 
     </PropertyGroup>
+
+    <ItemGroup>
+      <AdditionalDesignTimeBuildInput Remove="FakesAssemblies\**" />
+    </ItemGroup>
 </Project>

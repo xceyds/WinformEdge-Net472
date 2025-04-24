@@ -79,7 +79,7 @@ public class AppBuilder
         return this;
     }
 
-    public AppBuilder UseModernScrollbarStyle()
+    public AppBuilder UseModernStyleScrollbar()
     {
         // Use modern scrollbar style
         // This is where you can set the modern scrollbar style for your application.

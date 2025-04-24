@@ -77,8 +77,6 @@ public abstract partial class Formedge
         HostWindow.OnWindowProc += WndProc;
 
         HostWindow.OnDefWindowProc += DefWndProc;
-
-
     }
 
     private void OnActivatedCore(object? sender, EventArgs e)

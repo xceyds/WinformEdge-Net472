@@ -91,7 +91,7 @@ public class FormedgeApp
     }
 
 
-    public static AppBuilder CreateBuilder()
+    public static AppBuilder CreateAppBuilder()
     {
         return new AppBuilder();
     }

@@ -6,7 +6,7 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net8.0-windows</TargetFramework>
+        <TargetFrameworks>net8.0-windows;net9.0-windows;</TargetFrameworks>
         <Nullable>enable</Nullable>
         <UseWindowsForms>true</UseWindowsForms>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -16,12 +16,23 @@
         <ApplicationUseCompatibleTextRendering>true</ApplicationUseCompatibleTextRendering>
         <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
         <ApplicationDefaultFont>Segoe UI,9pt</ApplicationDefaultFont>
-        <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+
+
+        <!--<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+        <PublishAot>true</PublishAot>
+        <_SuppressWinFormsTrimError>true</_SuppressWinFormsTrimError>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <TrimMode>partial</TrimMode>-->
 
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\WinFormedge\WinFormedge.csproj" />
     </ItemGroup>
+    
+    
 
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
+    </ItemGroup>
 </Project>
