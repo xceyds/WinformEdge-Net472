@@ -74,6 +74,10 @@ partial class WebViewCore
                     OnWmSettingChangeWithImmersiveColorSet(m.LParam);
                 }
                 break;
+            case WM_ERASEBKGND:
+                {
+                    return Initialized;
+                }
         }
 
 

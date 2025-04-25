@@ -1,16 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.Http;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
-
+﻿using System.ComponentModel;
 
 namespace WinFormedge.HostForms;
 
@@ -171,6 +159,84 @@ public class BrowserHostForm : Form
 
     #endregion
 
+    #region WindowComposition
+    class WindowAccentCompositor
+    {
+        nint _handle;
+        private readonly bool _isAcrylic;
+
+        public WindowAccentCompositor(nint windowHandle, bool isAcrylic = false)
+        {
+            _handle = windowHandle;
+            _isAcrylic = isAcrylic;
+        }
+
+        public void Composite(Color color)
+        {
+            var gradientColor = color.R | (color.G << 8) | (color.B << 16) | (color.A << 24);
+            Composite(_handle, gradientColor);
+        }
+
+        private void Composite(IntPtr handle, int color)
+        {
+            var accent = new AccentPolicy { AccentState = _isAcrylic ? AccentState.ACCENT_ENABLE_ACRYLICBLURBEHIND : AccentState.ACCENT_ENABLE_BLURBEHIND, GradientColor = color };
+            var accentPolicySize = Marshal.SizeOf(accent);
+            var accentPtr = Marshal.AllocHGlobal(accentPolicySize);
+            Marshal.StructureToPtr(accent, accentPtr, false);
+
+            try
+            {
+                var data = new WindowCompositionAttributeData
+                {
+                    Attribute = WindowCompositionAttribute.WCA_ACCENT_POLICY,
+                    SizeOfData = accentPolicySize,
+                    Data = accentPtr
+                };
+                SetWindowCompositionAttribute(handle, ref data);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(accentPtr);
+            }
+        }
+
+        [DllImport("user32.dll")]
+        private static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
+
+        private enum AccentState
+        {
+            ACCENT_DISABLED = 0,
+            ACCENT_ENABLE_GRADIENT,
+            ACCENT_ENABLE_TRANSPARENTGRADIENT,
+            ACCENT_ENABLE_BLURBEHIND,
+            ACCENT_ENABLE_ACRYLICBLURBEHIND,
+            ACCENT_INVALID_STATE
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct AccentPolicy
+        {
+            public AccentState AccentState;
+            public int AccentFlags;
+            public int GradientColor;
+            public int AnimationId;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct WindowCompositionAttributeData
+        {
+            public WindowCompositionAttribute Attribute;
+            public IntPtr Data;
+            public int SizeOfData;
+        }
+
+        private enum WindowCompositionAttribute
+        {
+            WCA_ACCENT_POLICY = 19
+        }
+    }
+    #endregion
+
     const WINDOW_STYLE WINDOWED_STYLE = WINDOW_STYLE.WS_OVERLAPPEDWINDOW;
     const WINDOW_STYLE BORDERLESS_STYLE = WINDOW_STYLE.WS_OVERLAPPED | WINDOW_STYLE.WS_THICKFRAME | WINDOW_STYLE.WS_CAPTION | WINDOW_STYLE.WS_SYSMENU | WINDOW_STYLE.WS_MINIMIZEBOX | WINDOW_STYLE.WS_MAXIMIZEBOX;
     const WINDOW_STYLE FULL_SCREEN_STYLE = WINDOW_STYLE.WS_POPUP | WINDOW_STYLE.WS_SYSMENU | WINDOW_STYLE.WS_MINIMIZEBOX;
@@ -279,6 +345,26 @@ public class BrowserHostForm : Form
         }
     }
 
+    private Color? _backColor = null;
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    public new Color BackColor
+    {
+        get => _backColor ?? base.BackColor;
+        set
+        {
+            if (value == Color.Transparent)
+            {
+                _backColor = null;
+                base.BackColor = Color.White;
+            }
+            else
+            {
+                _backColor = value;
+                base.BackColor = Color.FromArgb(255, value.R, value.G, value.B);
+            }
+
+        }
+    }
 
     public BrowserHostForm()
     {
@@ -297,7 +383,6 @@ public class BrowserHostForm : Form
         this.Name = "WinFormedgeForm";
         this.Text = "WinFormedge";
         this.AutoScaleMode = AutoScaleMode.Dpi;
-        this.BackColor = System.Drawing.Color.White;
         this.ResumeLayout(false);
     }
 
@@ -424,6 +509,8 @@ public class BrowserHostForm : Form
 
 
         SetWindowPos((HWND)Handle, HWND.Null, 0, 0, 0, 0, SET_WINDOW_POS_FLAGS.SWP_FRAMECHANGED | SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOSIZE);
+
+
 
         ShowWindow(hWnd, _wpPrev.showCmd);
 
@@ -584,6 +671,8 @@ public class BrowserHostForm : Form
 
         HandleWindowStyleChanged();
 
+        HandleSystemBackdropTypeChanged(SystemBackdropType);
+
         if (!RecreatingHandle)
         {
             CorrectWindowPos();
@@ -599,13 +688,24 @@ public class BrowserHostForm : Form
         {
             var cp = base.CreateParams;
 
-
             cp.Style = (int)GetWindowStyle();
 
-            cp.ClassStyle |= (int)(WNDCLASS_STYLES.CS_HREDRAW & WNDCLASS_STYLES.CS_VREDRAW);
+            //cp.ClassStyle |= (int)(WNDCLASS_STYLES.CS_HREDRAW | WNDCLASS_STYLES.CS_VREDRAW);
 
-            cp.ExStyle |= (int)WINDOW_EX_STYLE.WS_EX_COMPOSITED;
-
+            switch (SystemBackdropType)
+            {
+                //case SystemBackdropType.None:
+                case SystemBackdropType.BlurBehind:
+                case SystemBackdropType.Manual:
+                case SystemBackdropType.Acrylic:
+                case SystemBackdropType.MainWindow:
+                case SystemBackdropType.TransientWindow:
+                case SystemBackdropType.TabbedWindow:
+                    cp.ExStyle |= (int)WINDOW_EX_STYLE.WS_EX_NOREDIRECTIONBITMAP;
+                    break;
+                default:
+                    break;
+            }
             return cp;
         }
     }
@@ -621,17 +721,17 @@ public class BrowserHostForm : Form
             case WM_NCCREATE when OperatingSystem.IsWindowsVersionAtLeast(10, 0, 14393):
                 {
                     EnableNonClientDpiScaling((HWND)m.HWnd);
+                    if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
+                    {
+                        unsafe
+                        {
+                            BOOL useHostBackdropBrush = true;
+                            DwmSetWindowAttribute((HWND)Handle, DWMWINDOWATTRIBUTE.DWMWA_USE_HOSTBACKDROPBRUSH, &useHostBackdropBrush, (uint)sizeof(BOOL));
+                        }
+
+                    }
                 }
                 break;
-            //case WM_NCCALCSIZE when wParam == 0 && ExtendsContentIntoTitleBar && !Popup && !Fullscreen:
-            //    {
-            //        var rect = Marshal.PtrToStructure<RECT>(lParam);
-            //        AdjustClientRect(ref rect);
-
-            //        Marshal.StructureToPtr(rect, m.LParam, false);
-
-            //    }
-            //    break;
             case WM_NCCALCSIZE when wParam == 1 && ExtendsContentIntoTitleBar && !Popup && !Fullscreen:
                 {
                     var nccalc = Marshal.PtrToStructure<NCCALCSIZE_PARAMS>(lParam);
@@ -653,6 +753,7 @@ public class BrowserHostForm : Form
                     }
                 }
                 break;
+
         }
         var handled = OnWindowProc?.Invoke(ref m) ?? false;
 
@@ -678,6 +779,118 @@ public class BrowserHostForm : Form
 
     public new void CenterToParent() => base.CenterToParent();
     public new void CenterToScreen() => base.CenterToScreen();
-}
 
+    SystemBackdropType _systemBackdropType = SystemBackdropType.Auto;
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    public SystemBackdropType SystemBackdropType
+    {
+        get => _systemBackdropType;
+        set
+        {
+            if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763) && value >= SystemBackdropType.Manual)
+            {
+                return;
+            }
+            else if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22621) && value > SystemBackdropType.Acrylic)
+            {
+                return;
+            }
+
+            if (value == _systemBackdropType) return;
+
+            if (IsHandleCreated)
+            {
+                HandleSystemBackdropTypeChanged(value);
+            }
+            else
+            {
+                _systemBackdropType = value;
+            }
+        }
+    }
+
+    private void HandleSystemBackdropTypeChanged(SystemBackdropType value)
+    {
+        if (!IsHandleCreated)
+        {
+            return;
+        }
+
+
+
+        //if (value == _systemBackdropType) return;
+
+        //var exStyle = (WINDOW_EX_STYLE)GetWindowLong((HWND)Handle, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
+
+        //if (_systemBackdropType == SystemBackdropType.None || _systemBackdropType == SystemBackdropType.Auto)
+        //{
+        //    exStyle &= ~WINDOW_EX_STYLE.WS_EX_NOREDIRECTIONBITMAP;
+        //}
+        //else
+        //{
+        //    exStyle |= WINDOW_EX_STYLE.WS_EX_NOREDIRECTIONBITMAP;
+        //}
+        //SetWindowLong((HWND)Handle, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, (int)exStyle);
+
+        //var errCode = Marshal.GetLastWin32Error();
+
+
+        if (value != _systemBackdropType)
+        {
+            _systemBackdropType = value;
+            RecreateHandle();
+        }
+
+        if (value == SystemBackdropType.BlurBehind)
+        {
+            WindowAccentCompositor compositor = new(Handle);
+            compositor.Composite(Color.FromArgb(0, 255, 255, 255));
+            _systemBackdropType = value;
+            return;
+        }
+
+        if (value == SystemBackdropType.Acrylic)
+        {
+            WindowAccentCompositor compositor = new(Handle, true);
+            var mode = FormedgeApp.Current.GetSystemColorMode();
+
+            if (_backColor != null)
+            {
+                compositor.Composite(_backColor.Value);
+            }
+            else
+            {
+                if (mode == SystemColorMode.Light)
+                {
+                    compositor.Composite(Color.FromArgb(0, 255, 255, 255));
+                }
+                else
+                {
+                    compositor.Composite(Color.FromArgb(60, 0, 0, 0));
+                }
+            }
+
+            _systemBackdropType = value;
+            return;
+        }
+
+
+        var systemBackdropType = _systemBackdropType switch
+        {
+            SystemBackdropType.None => DWM_SYSTEMBACKDROP_TYPE.DWMSBT_NONE,
+            SystemBackdropType.MainWindow => DWM_SYSTEMBACKDROP_TYPE.DWMSBT_MAINWINDOW,
+            SystemBackdropType.TransientWindow => DWM_SYSTEMBACKDROP_TYPE.DWMSBT_TRANSIENTWINDOW,
+            SystemBackdropType.TabbedWindow => DWM_SYSTEMBACKDROP_TYPE.DWMSBT_TABBEDWINDOW,
+            _ => DWM_SYSTEMBACKDROP_TYPE.DWMSBT_AUTO
+        };
+
+        unsafe
+        {
+            DwmSetWindowAttribute((HWND)Handle, DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE, &systemBackdropType, sizeof(DWM_SYSTEMBACKDROP_TYPE));
+        }
+
+        _systemBackdropType = value;
+
+    }
+}
 

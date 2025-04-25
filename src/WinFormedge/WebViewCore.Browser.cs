@@ -40,7 +40,7 @@ partial class WebViewCore
         
         controller.ShouldDetectMonitorScaleChanges = true;
         controller.Bounds = Container.ClientRectangle;
-        
+        //controller.IsVisible = false;
 
         var webview = controller!.CoreWebView2;
 
@@ -85,8 +85,12 @@ partial class WebViewCore
             //    Thread.Sleep(10);
             //    _patchResizingIfNeeded = false;
             //}
+
             
             Controller.Bounds = Container.ClientRectangle;
+
+            Thread.Sleep(20);
+
 
         };
 

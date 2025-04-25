@@ -28,11 +28,22 @@ public partial class Formedge
         get => WebView.Url;
         set => WebView.Url = value;
     }
-    /// <inheritdoc />
+    
+
+    private Color _defaultBackgroundColor = Color.White;
     internal protected Color DefaultBackgroundColor
     {
-        get => WebView.Controller.DefaultBackgroundColor;
-        set => WebView.Controller.DefaultBackgroundColor = value;
+        get => WebView.Initialized ? WebView.Controller.DefaultBackgroundColor : _defaultBackgroundColor;
+        set {
+            if (WebView.Initialized)
+            {
+                _defaultBackgroundColor = WebView.Controller.DefaultBackgroundColor = value;
+            }
+            else
+            {
+                _defaultBackgroundColor = value;
+            }
+        }
     }
 
     /// <inheritdoc />

@@ -38,6 +38,11 @@ public partial class Formedge : IWin32Window
     public Size MinimumSize { get => HostWindow.MinimumSize; set => HostWindow.MinimumSize = value; }
     public FormStartPosition StartPosition { get => HostWindow.StartPosition; set => HostWindow.StartPosition = value; }
     public bool Enabled { get => HostWindow.Enabled; set => HostWindow.Enabled = value; }
+    public SystemBackdropType WindowSystemBackdropType
+    {
+        get => HostWindow.SystemBackdropType;
+        set => HostWindow.SystemBackdropType = value;
+    }
     public Color BackColor
     {
         get => HostWindow.BackColor;

@@ -41,6 +41,7 @@ public abstract partial class Formedge
         {
             if (WebView.Browser == null) throw new InvalidOperationException();
 
+            WebView.Controller.DefaultBackgroundColor = DefaultBackgroundColor;
 
             WebView.Browser.ContentLoading += OnContentLoading;
             WebView.Browser.NavigationStarting += OnNavigationStarting;

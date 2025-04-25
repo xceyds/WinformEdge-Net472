@@ -11,6 +11,10 @@ internal class MyWindow : Formedge
         Url = "https://cn.bing.com";
         Size = new Size(1440, 900);
 
+        WindowSystemBackdropType = SystemBackdropType.TransientWindow;
+        //BackColor = Color.FromArgb(100, 0, 0, 0);
+        DefaultBackgroundColor = Color.Transparent;
+
         Load += MyWindow_Load;
         DOMContentLoaded += MyWindow_DOMContentLoaded;
     }
