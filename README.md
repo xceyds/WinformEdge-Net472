@@ -2,15 +2,14 @@
     <img src="./artworks/WinFormedgeLogo.png" width="144" />
 </p>
 <h1 align="center">The WinFormedge Project</h1>
-<p align="center"><strong>A library based on Microsoft WebView2 that can buid powerful WinForms applications with HTML, CSS and JavaScript easily.</strong></p>
+<p align="center">This is a .NET library based on Microsoft WebView2 that can buid powerful WinForm applications with HTML, CSS and JavaScript easily.</p>
 
-# WinFormedge
 
 ## ✨ About
 
-**WinFormege** is an opensource .NET library based on Microsoft WebView2. It allows developers to create modern and visually WinForms applications using HTML, CSS, and JavaScript. With WinFormedge, you can easily integrate web technologies into your WinForms projects, enabling you to build rich and interactive user interfaces.
+**WinFormedge** is an open-source .NET library built on **Microsoft WebView2**, enabling developers to create modern, visually appealing WinForms applications using **HTML, CSS, and JavaScript**. With WinFormedge, you can seamlessly integrate web technologies into your WinForm projects, allowing for rich and interactive user interfaces.  
 
-The motivation for developing the WinFormedge project comes from another project I maintain called **WinFormium** (AKA **NanUI**). It also allows developers to create WinForms applications using Web technologies, but the difference is that WinFormium is based on the Chromium Embedded Framework (CEF). If you are more interested in the CEF-based WinFormium project, please go to the WinFormium project repository for more information.
+The inspiration behind WinFormedge comes from another project I maintain: **[WinFormium](https://github.com/xuanchenlin/NanUI)** (also known as **NanUI**). Like WinFormedge, WinFormium lets developers build WinForms applications using web technologies—but unlike WinFormedge, it relies on the **Chromium Embedded Framework (CEF)**.  
 
 ## 🖥️ Requirements
 
