@@ -159,11 +159,14 @@ public class FormedgeApp
         {
             Language = $"{Culture.Name}".ToLower(),
             AreBrowserExtensionsEnabled = false,
+            ExclusiveUserDataFolderAccess = false,
             AdditionalBrowserArguments = string.Empty,
             EnableTrackingPrevention = false,
             IsCustomCrashReportingEnabled = true,
             ReleaseChannels = CoreWebView2ReleaseChannels.Stable,
             ScrollBarStyle = FluentOverlayStyleScrollbar? CoreWebView2ScrollbarStyle.FluentOverlay : CoreWebView2ScrollbarStyle.Default,
+            ChannelSearchKind = CoreWebView2ChannelSearchKind.MostStable,
+            AllowSingleSignOnUsingOSPrimaryAccount = false,
         };
 
         BuildAdditionalBrowserArguments(opts);

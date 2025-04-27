@@ -11,9 +11,11 @@ internal class MyWindow : Formedge
         Url = "https://cn.bing.com";
         Size = new Size(1440, 900);
 
-        WindowSystemBackdropType = SystemBackdropType.TransientWindow;
+        MinimumSize = new Size(1440, 900);
+
+        //WindowSystemBackdropType = SystemBackdropType.TransientWindow;
         //BackColor = Color.FromArgb(100, 0, 0, 0);
-        DefaultBackgroundColor = Color.Transparent;
+        //DefaultBackgroundColor = Color.Transparent;
 
         Load += MyWindow_Load;
         DOMContentLoaded += MyWindow_DOMContentLoaded;
@@ -21,6 +23,9 @@ internal class MyWindow : Formedge
 
     private void MyWindow_Load(object? sender, EventArgs e)
     {
+        CoreWebView2.AddWebResourceRequestedFilter("", CoreWebView2WebResourceContext.All);
+
+        CoreWebView2.RemoveWebResourceRequestedFilter("", CoreWebView2WebResourceContext.All);
     }
 
     private void MyWindow_DOMContentLoaded(object? sender, CoreWebView2DOMContentLoadedEventArgs e)

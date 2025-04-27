@@ -383,6 +383,7 @@ public class BrowserHostForm : Form
         this.Name = "WinFormedgeForm";
         this.Text = "WinFormedge";
         this.AutoScaleMode = AutoScaleMode.Dpi;
+        this.BackColor = Color.White;
         this.ResumeLayout(false);
     }
 
@@ -815,25 +816,6 @@ public class BrowserHostForm : Form
         {
             return;
         }
-
-
-
-        //if (value == _systemBackdropType) return;
-
-        //var exStyle = (WINDOW_EX_STYLE)GetWindowLong((HWND)Handle, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
-
-        //if (_systemBackdropType == SystemBackdropType.None || _systemBackdropType == SystemBackdropType.Auto)
-        //{
-        //    exStyle &= ~WINDOW_EX_STYLE.WS_EX_NOREDIRECTIONBITMAP;
-        //}
-        //else
-        //{
-        //    exStyle |= WINDOW_EX_STYLE.WS_EX_NOREDIRECTIONBITMAP;
-        //}
-        //SetWindowLong((HWND)Handle, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, (int)exStyle);
-
-        //var errCode = Marshal.GetLastWin32Error();
-
 
         if (value != _systemBackdropType)
         {

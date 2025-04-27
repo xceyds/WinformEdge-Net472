@@ -9,6 +9,7 @@ namespace WinFormedge;
 using System.Windows.Forms;
 
 using WinFormedge.HostForms;
+using WinFormedge.WebResource;
 
 public abstract partial class Formedge
 {
@@ -202,6 +203,15 @@ public abstract partial class Formedge
         UpdateFormText();
     }
 
+    protected void RegisterResourceHander(WebResourceHandler resourceHandler)
+    {
+        WebView.WebResourceManager.RegisterResourceHander(resourceHandler);
+    }
+
+    protected void UnregisterResourceHander(WebResourceHandler resourceHandler)
+    {
+        WebView.WebResourceManager.UnregisterResourceHander(resourceHandler);
+    }
 }
 
 

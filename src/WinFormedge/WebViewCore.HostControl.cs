@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,9 +10,6 @@ namespace WinFormedge;
 partial class WebViewCore
 {
     internal Control HostControl { get; }
-
-
-    //private bool _patchResizingIfNeeded = false;
 
     internal Control Container
     {
@@ -83,33 +81,6 @@ partial class WebViewCore
 
         return false;
     }
-
-
-    //private void OnWmSizing(ref Message m)
-    //{
-    //    var direction = (uint)m.WParam;
-
-    //    GetWindowRect((HWND)m.HWnd, out var rect);
-
-    //    var windowRect = System.Drawing.Rectangle.FromLTRB(rect.left, rect.top, rect.right, rect.bottom);
-
-    //    var proposedRect = Marshal.PtrToStructure<Rectangle>(m.LParam);
-
-    //    if ((direction == WMSZ_LEFT || direction == WMSZ_TOP || direction == WMSZ_TOPLEFT) && (proposedRect.Top < windowRect.Top || proposedRect.Left < windowRect.Left))
-    //    {
-    //        if (Initialized)
-    //        {
-    //            var dx = Math.Abs(proposedRect.X - windowRect.X);
-    //            var dy = Math.Abs(proposedRect.Y - windowRect.Y);
-    //            Debug.WriteLine($"px: {proposedRect.X}, py: {proposedRect.Y} ox:{windowRect.X} oy:{windowRect.Y}");
-
-    //            Controller.Bounds = new Rectangle(dx, dy, Controller.Bounds.Width, Controller.Bounds.Height);
-    //        }
-
-    //    }
-    //}
-
-
 
     private void OnWmSettingChangeWithImmersiveColorSet(nint lParam)
     {

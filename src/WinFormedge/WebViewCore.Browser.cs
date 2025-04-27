@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using WinFormedge.WebResource;
+
 namespace WinFormedge;
 partial class WebViewCore
 {
@@ -20,8 +22,12 @@ partial class WebViewCore
     public bool Initialized => _controller != null;
 
     internal CoreWebView2Environment WebViewEnvironment => FormedgeApp.Current!.WebView2Environment;
+
     internal CoreWebView2Controller Controller => _controller ?? throw new NullReferenceException(nameof(Controller));
+
     internal CoreWebView2? Browser => _controller?.CoreWebView2;
+
+    internal WebResourceManager WebResourceManager { get; } = new WebResourceManager();
 
     private async void CreateWebView2()
     {
@@ -74,29 +80,18 @@ partial class WebViewCore
 
         Container.Move += (_, _) =>
         {
-            Controller.Bounds = Container.ClientRectangle;
+            controller.NotifyParentWindowPositionChanged();
         };
 
         Container.Resize += (_, _) =>
         {
-
-            //if (_patchResizingIfNeeded)
-            //{
-            //    Thread.Sleep(10);
-            //    _patchResizingIfNeeded = false;
-            //}
-
-            
             Controller.Bounds = Container.ClientRectangle;
-
-            Thread.Sleep(20);
-
-
         };
+
 
         WebViewCreated?.Invoke(Container, EventArgs.Empty);
 
-        
+        WebResourceManager.Initialize(webview);
 
         webview.Navigate(_defferedUrl ?? ABOUT_BLANK);
 
