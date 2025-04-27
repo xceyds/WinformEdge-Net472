@@ -23,9 +23,7 @@ internal class MyWindow : Formedge
 
     private void MyWindow_Load(object? sender, EventArgs e)
     {
-        CoreWebView2.AddWebResourceRequestedFilter("", CoreWebView2WebResourceContext.All);
 
-        CoreWebView2.RemoveWebResourceRequestedFilter("", CoreWebView2WebResourceContext.All);
     }
 
     private void MyWindow_DOMContentLoaded(object? sender, CoreWebView2DOMContentLoadedEventArgs e)

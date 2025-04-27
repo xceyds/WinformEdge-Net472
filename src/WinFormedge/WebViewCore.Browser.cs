@@ -27,7 +27,7 @@ partial class WebViewCore
 
     internal CoreWebView2? Browser => _controller?.CoreWebView2;
 
-    internal WebResourceManager WebResourceManager { get; } = new WebResourceManager();
+    private WebResourceManager WebResourceManager { get; } = new WebResourceManager();
 
     private async void CreateWebView2()
     {
@@ -88,10 +88,10 @@ partial class WebViewCore
             Controller.Bounds = Container.ClientRectangle;
         };
 
+        WebResourceManager.Initialize(webview);
 
         WebViewCreated?.Invoke(Container, EventArgs.Empty);
 
-        WebResourceManager.Initialize(webview);
 
         webview.Navigate(_defferedUrl ?? ABOUT_BLANK);
 
@@ -100,9 +100,17 @@ partial class WebViewCore
         _defferedUrl = null;
     }
 
+    public void RegisterResourceHander(WebResourceHandler resourceHandler)
+    {
+        WebResourceManager.RegisterResourceHander(resourceHandler);
+    }
+
+    public void UnregisterResourceHander(WebResourceHandler resourceHandler)
+    {
+        WebResourceManager.UnregisterResourceHander(resourceHandler);
+    }
 
 
-    
 }
 
 

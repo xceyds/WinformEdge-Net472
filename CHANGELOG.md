@@ -1,5 +1,16 @@
 ﻿## Change Logs
 
+## 2025/4/27
+
+增强 Web 资源管理功能和界面设置
+
+在多个文件中进行了重要更改，包括：
+
+- 创建了 `ManagedStream`、`WebResourceHandler`、`WebResourceManager`、`WebResourceRequest` 和 `WebResourceResponse` 类，以增强 Web 资源的处理能力。
+- 在 `WebViewCore.Browser.cs` 中集成了 Web 资源管理器的初始化和请求处理。
+- 移除了 `WebViewCore.HostControl.cs` 中与窗口大小调整相关的注释代码。
+
+
 ### 2025/4/25
 
 添加窗口背景类型支持和相关属性
@@ -11,3 +22,6 @@
 在 `WebViewCore.Browser.cs` 中设置 `Controller.Bounds`，并在创建 WebView2 控制器时添加延迟。处理 `WM_ERASEBKGND` 消息以确保初始化时返回正确值。定义 `SystemBackdropType` 枚举，包含多种背景类型选项。
 
 ![2025/4/25](./screenshots/2025-04-26_025600.png)
+
+
+
