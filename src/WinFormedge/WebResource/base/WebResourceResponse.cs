@@ -9,7 +9,14 @@ public sealed class WebResourceResponse : IDisposable
 
     public Stream? ContentBody { get; set; }
 
-    public string ContentType { get; set; } = DEFAULT_CONTENT_TYPE;
+    public string ContentType { 
+        get {
+            return Headers["Content-Type"]?.ToString() ?? DEFAULT_CONTENT_TYPE;
+        }
+        set {
+            Headers["Content-Type"] = value;
+        } 
+    }
     public NameValueCollection Headers { get; } = new NameValueCollection();
 
 
@@ -24,8 +31,6 @@ public sealed class WebResourceResponse : IDisposable
         {
             ContentBody = new MemoryStream(buff);
         }
-
-
     }
 
     public void Dispose()
@@ -67,7 +72,6 @@ public sealed class WebResourceResponse : IDisposable
     internal void JsonContent<T>(T data, JsonSerializerOptions? jsonSerializerOptions = null)
     {
         var bytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data, jsonSerializerOptions));
-
 
         Content(bytes, "application/json");
     }

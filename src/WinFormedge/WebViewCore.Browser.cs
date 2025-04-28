@@ -100,14 +100,14 @@ partial class WebViewCore
         _defferedUrl = null;
     }
 
-    public void RegisterResourceHander(WebResourceHandler resourceHandler)
+    public void RegisterWebResourceHander(WebResourceHandler resourceHandler)
     {
-        WebResourceManager.RegisterResourceHander(resourceHandler);
+        WebResourceManager.RegisterWebResourceHander(resourceHandler);
     }
 
-    public void UnregisterResourceHander(WebResourceHandler resourceHandler)
+    public void UnregisterWebResourceHander(WebResourceHandler resourceHandler)
     {
-        WebResourceManager.UnregisterResourceHander(resourceHandler);
+        WebResourceManager.UnregisterWebResourceHander(resourceHandler);
     }
 
 

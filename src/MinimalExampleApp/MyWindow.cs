@@ -1,5 +1,8 @@
 ﻿using WinFormedge;
+using WinFormedge.WebResource;
+
 using Microsoft.Web.WebView2.Core;
+using System.Reflection;
 
 namespace MinimalExampleApp;
 internal class MyWindow : Formedge
@@ -8,7 +11,7 @@ internal class MyWindow : Formedge
     {
         ExtendsContentIntoTitleBar = true;
 
-        Url = "https://cn.bing.com";
+        //Url = "https://cn.bing.com";
         Size = new Size(1440, 900);
 
         MinimumSize = new Size(1440, 900);
@@ -19,11 +22,20 @@ internal class MyWindow : Formedge
 
         Load += MyWindow_Load;
         DOMContentLoaded += MyWindow_DOMContentLoaded;
+
+        this.SetVirtualHostNameToEmbeddedResourcesMapping(new EmbeddedFileResourceOptions { 
+            Scheme="https", 
+            HostName="embedded.appresource.local", 
+            ResourceAssembly=Assembly.GetExecutingAssembly(),
+            DefaultFolderName="Resources\\wwwroot"
+        });
+
+        Url = "https://embedded.appresource.local";
     }
 
     private void MyWindow_Load(object? sender, EventArgs e)
     {
-
+        
     }
 
     private void MyWindow_DOMContentLoaded(object? sender, CoreWebView2DOMContentLoadedEventArgs e)

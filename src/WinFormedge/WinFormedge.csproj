@@ -12,11 +12,7 @@
         <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Compile Remove="FakesAssemblies\**" />
-      <EmbeddedResource Remove="FakesAssemblies\**" />
-      <None Remove="FakesAssemblies\**" />
-    </ItemGroup>
+
     <ItemGroup>
         <PackageReference Include="Microsoft.QualityTools.Testing.Fakes" Version="17.5.0-beta.23060.1" />
         <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
@@ -33,7 +29,5 @@
 
     </PropertyGroup>
 
-    <ItemGroup>
-      <AdditionalDesignTimeBuildInput Remove="FakesAssemblies\**" />
-    </ItemGroup>
+
 </Project>

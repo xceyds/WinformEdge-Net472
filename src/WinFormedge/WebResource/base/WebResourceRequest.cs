@@ -19,6 +19,12 @@ public sealed class WebResourceRequest
         }
     }
 
+    public string RelativePath => $"{Uri?.LocalPath ?? string.Empty}".TrimStart('/');
+    public string FileName => Path.GetFileName(RelativePath);
+    public string FileExtension => Path.GetExtension(FileName).TrimStart('.');
+    public bool HasFileName => !string.IsNullOrEmpty(FileName);
+
+
     public CoreWebView2WebResourceRequest Request { get; }
 
     internal WebResourceRequest(CoreWebView2WebResourceRequest request, CoreWebView2WebResourceRequestSourceKinds requestSourceKinds, CoreWebView2WebResourceContext webResourceContext)

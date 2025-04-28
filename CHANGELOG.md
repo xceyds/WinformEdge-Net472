@@ -1,6 +1,23 @@
 ﻿## Change Logs
 
-## 2025/4/27
+### 2025/4/28
+
+嵌入资源处理逻辑
+
+- 修改 `MyWindow.cs` 中的 URL 设置，添加虚拟主机名映射。
+- 在 `Formedge.Internal.cs` 中添加 `_setVirtualHostNameToFolderMapping` 字段及相关方法。
+- 重新引入 `ManagedStream` 类，封装流操作。
+- 添加 HTTP 状态码定义及获取状态短语的方法。
+- 实现 MIME 类型映射和资源请求管理。
+- 处理请求 URL 和相对路径的逻辑。
+- 实现响应内容处理，包括 JSON 和文本内容。
+- 定义嵌入文件资源选项及处理逻辑。
+- 添加简单的 `index.html` 页面。
+- 注册嵌入文件资源处理器的扩展方法。
+
+
+
+### 2025/4/27
 
 增强 Web 资源管理功能和界面设置
 

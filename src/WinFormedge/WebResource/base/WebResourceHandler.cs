@@ -810,7 +810,7 @@ public abstract class WebResourceHandler
                 str = Dot + str;
             }
 
-            return _mappings.Value.TryGetValue(str, out mimeType);
+            return _mappings.Value.TryGetValue(str, out mimeType!);
         }
 
         /// <summary>
@@ -844,7 +844,7 @@ public abstract class WebResourceHandler
                 throw new ArgumentException("Requested mime type is not valid: " + mimeType);
             }
 
-            if (_mappings.Value.TryGetValue(mimeType, out string extension))
+            if (_mappings.Value.TryGetValue(mimeType, out string? extension))
             {
                 return extension;
             }
@@ -864,6 +864,8 @@ public abstract class WebResourceHandler
     public abstract string Scheme { get; }
     public abstract string HostName { get; }
     public abstract CoreWebView2WebResourceContext WebResourceContext { get; }
+
+    public virtual string[] DefaultFileName { get; } = ["index.html", "index.htm", "default.html"];
 
     public Uri Uri => new Uri($"{Scheme}://{HostName}".ToLower());
 
@@ -900,26 +902,38 @@ public abstract class WebResourceHandler
 
     }
 
-    internal async void HandleRequest(CoreWebView2 webview, CoreWebView2WebResourceRequestedEventArgs args)
+    internal void HandleRequest(CoreWebView2 webview, CoreWebView2WebResourceRequestedEventArgs args)
     {
-        var deferral = args.GetDeferral();
+        //var deferral = args.GetDeferral();
 
 
         try
         {
-            using var response = await Task.Run(() => GetResourceResponse(new WebResourceRequest(args.Request, args.RequestedSourceKind, WebResourceContext)));
+            //using var response = await Task.Run(() => GetResourceResponse(new WebResourceRequest(args.Request, args.RequestedSourceKind, WebResourceContext)));
 
-            args.Response = webview.Environment.CreateWebResourceResponse(response.ContentBody is null ? null : new ManagedStream(response.ContentBody), response.HttpStatus, StatusCodes.GetStatusPhrase(response.HttpStatus), response.Headers?.ToString());
+            var response = GetResourceResponse(new WebResourceRequest(args.Request, args.RequestedSourceKind, WebResourceContext));
+
+            if(response == null)
+            {
+                args.Response = webview.Environment.CreateWebResourceResponse(null, StatusCodes.Status404NotFound, "Not Found", string.Empty);
+                return;
+            }
+
+            string? headers = null;
+
+            headers = string.Join(";", response.Headers.AllKeys.Select(key => key + ": " + response.Headers[key]).ToArray()) ?? string.Empty;
+
+            args.Response = webview.Environment.CreateWebResourceResponse(response.ContentBody is null ? null : new ManagedStream(response.ContentBody), response.HttpStatus, StatusCodes.GetStatusPhrase(response.HttpStatus), headers);
         }
         catch (Exception ex)
         {
             args.Response = webview.Environment.CreateWebResourceResponse(null, StatusCodes.Status500InternalServerError, ex.Message, string.Empty);
 
         }
-        finally
-        {
-            deferral.Complete();
-        }
+        //finally
+        //{
+        //    deferral.Complete();
+        //}
 
 
     }

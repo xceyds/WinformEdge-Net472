@@ -51,7 +51,7 @@ sealed class WebResourceManager
         }
 
 
-        var matchedHandlers = Handlers.Where(x => x.WebResourceContext == e.ResourceContext);
+        var matchedHandlers = Handlers.Where(x => x.WebResourceContext == CoreWebView2WebResourceContext.All || x.WebResourceContext == e.ResourceContext);
 
         matchedHandlers = matchedHandlers.Where(x => x.Uri.Scheme.Equals(uri.Scheme, StringComparison.InvariantCultureIgnoreCase));
 
@@ -94,7 +94,7 @@ sealed class WebResourceManager
         return url;
     }
 
-    public void RegisterResourceHander(WebResourceHandler handler)
+    public void RegisterWebResourceHander(WebResourceHandler handler)
     {
         var scheme = handler.Scheme.ToLower();
         var hostName = handler.HostName.ToLower();
@@ -113,7 +113,7 @@ sealed class WebResourceManager
         }
     }
 
-    public void UnregisterResourceHander(WebResourceHandler handler)
+    public void UnregisterWebResourceHander(WebResourceHandler handler)
     {
         var scheme = handler.Scheme.ToLower();
         var hostName = handler.HostName.ToLower();

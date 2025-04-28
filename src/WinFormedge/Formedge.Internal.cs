@@ -31,6 +31,8 @@ public abstract partial class Formedge
 
     internal WebViewCore WebView { get; }
 
+    private Action? _setVirtualHostNameToFolderMapping;
+
 
     public Formedge()
     {
@@ -60,6 +62,8 @@ public abstract partial class Formedge
             WebView.Browser.StatusBarTextChanged += OnStatusBarTextChangedCore;
 
             WebView.Browser.Settings.IsNonClientRegionSupportEnabled = HostWindow.ExtendsContentIntoTitleBar || HostWindow.Popup;
+
+            _setVirtualHostNameToFolderMapping?.Invoke();
 
             OnLoad();
         };
@@ -203,6 +207,29 @@ public abstract partial class Formedge
         UpdateFormText();
     }
 
+    public void RegisterWebResourceHander(WebResourceHandler resourceHandler)
+    {
+        WebView.RegisterWebResourceHander(resourceHandler);
+    }
+
+    public void UnregisterWebResourceHandler(WebResourceHandler resourceHandler)
+    {
+        WebView.UnregisterWebResourceHander(resourceHandler);
+    }
+
+    public void SetVirtualHostNameToFolderMapping(string hostName, string folderPath, CoreWebView2HostResourceAccessKind accessKind)
+    {
+
+        if (CoreWebView2 != null)
+        {
+            CoreWebView2.SetVirtualHostNameToFolderMapping(hostName, folderPath, accessKind);
+        }
+        else
+        {
+            _setVirtualHostNameToFolderMapping += () => CoreWebView2!.SetVirtualHostNameToFolderMapping(hostName, folderPath, accessKind);
+        }
+        
+    }
 
 }
 
