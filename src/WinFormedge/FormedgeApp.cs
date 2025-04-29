@@ -202,6 +202,9 @@ public class FormedgeApp
             }
         }
 
+
+
+
         var startup = Startup?.OnApplicationStartup(new StartupOptions());
 
         if (startup == null)
@@ -210,14 +213,15 @@ public class FormedgeApp
             return;
         }
 
+        _environment = CoreWebView2Environment.CreateAsync(
+    BrowserExecutablePath,
+    UserDataFolder,
+    opts).GetAwaiter().GetResult();
+
+
 
         var appContext = new FormedgeApplicationContext();
         startup.ConfigureAppContext(appContext);
-
-        _environment = CoreWebView2Environment.CreateAsync(
-            BrowserExecutablePath,
-            UserDataFolder,
-            opts).GetAwaiter().GetResult();
 
 
         Application.Run(appContext);

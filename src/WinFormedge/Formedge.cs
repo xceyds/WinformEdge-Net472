@@ -12,7 +12,11 @@ public partial class Formedge
     protected virtual void OnLoad()
     {
         Load?.Invoke(this, EventArgs.Empty);
+
+
     }
+
+
 
     public event EventHandler? Load;
 }

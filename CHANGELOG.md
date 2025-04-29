@@ -1,4 +1,19 @@
 ﻿## Change Logs
+### 2025/4/29
+
+添加了JS与窗口交互逻辑
+
+- 添加嵌入资源 `formedge.js` 文件，包含与窗口交互的 JavaScript 代码。
+- 处理前端 HTML 页面中的 app-command 属性，实现了如下属性值：
+  - `app-command="close"`：关闭窗口。
+  - `app-command="minimize"`：最小化窗口。
+  - `app-command="maximize"`：切换窗口最大化状态。
+  - `app-command="fullscreen"`：切换窗口全屏状态。
+- 示例项目中的 `index.html` 文件中添加了几个按钮用于测试 `app-command` 属性的功能。
+
+![2025/4/29](./screenshots/2025-04-29_021428.png)
+
+
 
 ### 2025/4/28
 

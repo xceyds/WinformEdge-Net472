@@ -16,14 +16,12 @@ internal class MyWindow : Formedge
 
         MinimumSize = new Size(1440, 900);
 
-        //WindowSystemBackdropType = SystemBackdropType.TransientWindow;
-        //BackColor = Color.FromArgb(100, 0, 0, 0);
-        //DefaultBackgroundColor = Color.Transparent;
+        WindowSystemBackdropType = SystemBackdropType.TransientWindow;
 
         Load += MyWindow_Load;
         DOMContentLoaded += MyWindow_DOMContentLoaded;
 
-        this.SetVirtualHostNameToEmbeddedResourcesMapping(new EmbeddedFileResourceOptions { 
+        SetVirtualHostNameToEmbeddedResourcesMapping(new EmbeddedFileResourceOptions { 
             Scheme="https", 
             HostName="embedded.appresource.local", 
             ResourceAssembly=Assembly.GetExecutingAssembly(),
@@ -35,7 +33,7 @@ internal class MyWindow : Formedge
 
     private void MyWindow_Load(object? sender, EventArgs e)
     {
-        
+
     }
 
     private void MyWindow_DOMContentLoaded(object? sender, CoreWebView2DOMContentLoadedEventArgs e)

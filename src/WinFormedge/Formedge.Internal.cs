@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace WinFormedge;
 
+using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Windows.Forms;
 
 using WinFormedge.HostForms;
@@ -14,25 +17,7 @@ using WinFormedge.WebResource;
 public abstract partial class Formedge
 {
 
-    class ContextMenuHelper
-    {
-        public static bool IsRequiredItem(int commandId)
-        {
-            if (FormedgeApp.Current.EnableDevTools && commandId == 50162)
-            {
-                return true;
-            }
-
-            return commandId >= 50150 && commandId <= 50157 && commandId != 50154 && commandId != 50155;
-        }
-    }
-
-    internal BrowserHostForm HostWindow { get; }
-
-    internal WebViewCore WebView { get; }
-
-    private Action? _setVirtualHostNameToFolderMapping;
-
+    private static readonly string FORMEDGE_MESSAGE_PASSCODE = Guid.NewGuid().ToString("N");
 
     public Formedge()
     {
@@ -65,6 +50,20 @@ public abstract partial class Formedge
 
             _setVirtualHostNameToFolderMapping?.Invoke();
 
+            var script = Properties.Resources.Formedge.Replace("{{FORMEDGE_MESSAGE_PASSCODE}}",FORMEDGE_MESSAGE_PASSCODE);
+
+            if(OperatingSystem.IsWindowsVersionAtLeast(10,0,22000))
+            {
+                script = script.Replace("{{IS_SNAP_LAYOUTS_ENABLED}}", "true");
+            }
+            else
+            {
+                script = script.Replace("{{IS_SNAP_LAYOUTS_ENABLED}}", "false");
+            }
+
+            WebView.Browser.WebMessageReceived += CoreWebView2WebMessageReceived;
+            WebView.Browser.AddScriptToExecuteOnDocumentCreatedAsync(script);
+
             OnLoad();
         };
 
@@ -83,16 +82,149 @@ public abstract partial class Formedge
         HostWindow.OnWindowProc += WndProc;
 
         HostWindow.OnDefWindowProc += DefWndProc;
+
+
     }
 
-    private void OnActivatedCore(object? sender, EventArgs e)
+    private void CoreWebView2WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
     {
-        if (WebView.Initialized)
+        try
         {
-            WebView.Controller.MoveFocus(CoreWebView2MoveFocusReason.Programmatic);
+            var jsdoc = JsonDocument.Parse(e.WebMessageAsJson);
+            if (jsdoc == null || jsdoc.RootElement.ValueKind != JsonValueKind.Object) return;
+
+            if (jsdoc.RootElement.TryGetProperty("passcode", out var elPasscode) && jsdoc.RootElement.TryGetProperty("message", out var elMessage))
+            {
+                var passcode = elPasscode.GetString();
+                var name = elMessage.GetString();
+
+                if(passcode!=FORMEDGE_MESSAGE_PASSCODE) return;
+
+                switch (name)
+                {
+                    case "FormedgeWindowCommand":
+                        HandleWindowCommandJavaScript(jsdoc.RootElement);
+                        break;
+                    //case "FormedgeWindowSnapLayoutsRequired" when OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000):
+                    //    HandleWindowSnapLayoutsRequired(jsdoc.RootElement);
+                    //    break;
+                }
+
+
+            }
+        }
+        catch
+        {
+
         }
 
-        OnActivated(sender, e);
+
+    }
+
+    //private bool _isSnapLayoutsRequired = false;
+
+    //private void HandleWindowSnapLayoutsRequired(JsonElement jsonElement)
+    //{
+    //    if (!jsonElement.TryGetProperty("status", out var statusEl)) return;
+
+    //    var status = statusEl.GetBoolean();
+
+    //    _isSnapLayoutsRequired = status;
+
+    //    if (status)
+    //    {
+    //        SendMessage((HWND)HostWindow.Handle, WM_NCMOUSEHOVER, (WPARAM)HTMAXBUTTON, MARCOS.FromPoint(Control.MousePosition));
+    //    }
+        
+
+    //}
+
+    private void HandleWindowCommandJavaScript(JsonElement jsonElement)
+    {
+        if (!jsonElement.TryGetProperty("command", out var elCommand)) return;
+
+        var command = elCommand.GetString();
+
+
+        switch (command)
+        {
+            case "minimize":
+                WindowState = FormWindowState.Minimized;
+                break;
+            case "maximize":
+                if (WindowState == FormWindowState.Maximized)
+                {
+                    WindowState = FormWindowState.Normal;
+                }
+                else
+                {
+                    WindowState = FormWindowState.Maximized;
+                }
+                break;
+            case "fullscreen":
+                ToggleFullscreen();
+                break;
+            case "close":
+                Close();
+                break;
+
+        }
+    }
+
+    public void ClearVirtualHostNameToEmbeddedResourcesMapping(EmbeddedFileResourceOptions options)
+    {
+        UnregisterWebResourceHandler(new EmbeddedFileResourceHandler(options));
+    }
+
+    public void ClearVirtualHostNameToFolderMapping(string hostName)
+    {
+        if (CoreWebView2 != null)
+        {
+            CoreWebView2.ClearVirtualHostNameToFolderMapping(hostName);
+        }
+    }
+
+    public void RegisterWebResourceHander(WebResourceHandler resourceHandler)
+    {
+        WebView.RegisterWebResourceHander(resourceHandler);
+    }
+
+    public void SetVirtualHostNameToEmbeddedResourcesMapping(EmbeddedFileResourceOptions options)
+    {
+        RegisterWebResourceHander(new EmbeddedFileResourceHandler(options));
+    }
+
+    public void SetVirtualHostNameToFolderMapping(string hostName, string folderPath, CoreWebView2HostResourceAccessKind accessKind)
+    {
+        if (CoreWebView2 != null)
+        {
+            CoreWebView2.SetVirtualHostNameToFolderMapping(hostName, folderPath, accessKind);
+        }
+        else
+        {
+            _setVirtualHostNameToFolderMapping += () => CoreWebView2!.SetVirtualHostNameToFolderMapping(hostName, folderPath, accessKind);
+        }
+    }
+
+    public void UnregisterWebResourceHandler(WebResourceHandler resourceHandler)
+    {
+        WebView.UnregisterWebResourceHander(resourceHandler);
+    }
+
+    internal BrowserHostForm HostWindow { get; }
+    internal WebViewCore WebView { get; }
+    protected virtual void OnActivated(object? sender, EventArgs e)
+    {
+        Activated?.Invoke(this, EventArgs.Empty);
+    }
+
+    protected virtual void OnContextMenuRequested(object? sender, CoreWebView2ContextMenuRequestedEventArgs e)
+    {
+    }
+
+    protected virtual void OnDeactivate(object? sender, EventArgs e)
+    {
+        Deactivate?.Invoke(this, EventArgs.Empty);
     }
 
     protected virtual void OnFormClosed(object? sender, FormClosedEventArgs e)
@@ -105,24 +237,9 @@ public abstract partial class Formedge
         FormClosing?.Invoke(this, e);
     }
 
-    protected virtual void OnVisibleChanged(object? sender, EventArgs e)
-    {
-        VisibleChanged?.Invoke(this, e);
-    }
-
-    protected virtual void OnShown(object? sender, EventArgs e)
-    {
-        Shown?.Invoke(this, EventArgs.Empty);
-    }
-
     protected virtual void OnMove(object? sender, EventArgs e)
     {
         Move?.Invoke(this, EventArgs.Empty);
-    }
-
-    protected virtual void OnResizeEnd(object? sender, EventArgs e)
-    {
-        ResizeEnd?.Invoke(this, EventArgs.Empty);
     }
 
     protected virtual void OnResize(object? sender, EventArgs e)
@@ -135,20 +252,36 @@ public abstract partial class Formedge
         ResizeBegin?.Invoke(this, EventArgs.Empty);
     }
 
-    protected virtual void OnDeactivate(object? sender, EventArgs e)
+    protected virtual void OnResizeEnd(object? sender, EventArgs e)
     {
-        Deactivate?.Invoke(this, EventArgs.Empty);
+        ResizeEnd?.Invoke(this, EventArgs.Empty);
     }
 
-    protected virtual void OnActivated(object? sender, EventArgs e)
+    protected virtual void OnShown(object? sender, EventArgs e)
     {
-        Activated?.Invoke(this, EventArgs.Empty);
+        Shown?.Invoke(this, EventArgs.Empty);
+    }
+
+    protected virtual void OnVisibleChanged(object? sender, EventArgs e)
+    {
+        VisibleChanged?.Invoke(this, e);
+    }
+
+    private Action? _setVirtualHostNameToFolderMapping;
+
+    private void OnActivatedCore(object? sender, EventArgs e)
+    {
+        if (WebView.Initialized)
+        {
+            WebView.Controller.MoveFocus(CoreWebView2MoveFocusReason.Programmatic);
+        }
+
+        OnActivated(sender, e);
     }
 
     private void OnContextMenuRequestedCore(object? sender, CoreWebView2ContextMenuRequestedEventArgs e)
     {
         var editingItems = new List<CoreWebView2ContextMenuItem>();
-
 
         for (int i = 0; i < e.MenuItems.Count; i++)
         {
@@ -181,8 +314,6 @@ public abstract partial class Formedge
             editingItems.RemoveAt(editingItems.Count - 1);
         }
 
-
-
         e.MenuItems.Clear();
 
         foreach (var item in editingItems)
@@ -193,44 +324,25 @@ public abstract partial class Formedge
         OnContextMenuRequested(sender, e);
     }
 
-    protected virtual void OnContextMenuRequested(object? sender, CoreWebView2ContextMenuRequestedEventArgs e)
+    private void OnDocumentTitleChangedCore(object? sender, object e)
     {
-        
+        UpdateFormText();
     }
 
     private void OnStatusBarTextChangedCore(object? sender, object e)
     {
     }
 
-    private void OnDocumentTitleChangedCore(object? sender, object e)
+    private class ContextMenuHelper
     {
-        UpdateFormText();
-    }
-
-    public void RegisterWebResourceHander(WebResourceHandler resourceHandler)
-    {
-        WebView.RegisterWebResourceHander(resourceHandler);
-    }
-
-    public void UnregisterWebResourceHandler(WebResourceHandler resourceHandler)
-    {
-        WebView.UnregisterWebResourceHander(resourceHandler);
-    }
-
-    public void SetVirtualHostNameToFolderMapping(string hostName, string folderPath, CoreWebView2HostResourceAccessKind accessKind)
-    {
-
-        if (CoreWebView2 != null)
+        public static bool IsRequiredItem(int commandId)
         {
-            CoreWebView2.SetVirtualHostNameToFolderMapping(hostName, folderPath, accessKind);
-        }
-        else
-        {
-            _setVirtualHostNameToFolderMapping += () => CoreWebView2!.SetVirtualHostNameToFolderMapping(hostName, folderPath, accessKind);
-        }
-        
-    }
+            if (FormedgeApp.Current.EnableDevTools && commandId == 50162)
+            {
+                return true;
+            }
 
+            return commandId >= 50150 && commandId <= 50157 && commandId != 50154 && commandId != 50155;
+        }
+    }
 }
-
-

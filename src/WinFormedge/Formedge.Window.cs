@@ -7,9 +7,35 @@ using System.Threading.Tasks;
 
 namespace WinFormedge;
 
+using System.Diagnostics;
+
 using WinFormedge.HostForms;
 public partial class Formedge : IWin32Window
 {
+    public event EventHandler? Activated;
+
+    public event EventHandler? Deactivate;
+
+    public event EventHandler? ResizeBegin;
+
+    public event EventHandler? Resize;
+
+    public event EventHandler? ResizeEnd;
+
+    public event EventHandler? Move;
+
+    public event EventHandler? Shown;
+
+    public event EventHandler? VisibleChanged;
+
+    public event FormClosingEventHandler? FormClosing;
+
+    public event FormClosedEventHandler? FormClosed;
+
+    public event EventHandler? GotFocus;
+
+    public event EventHandler? LostFocus;
+
     public nint Handle => HostWindow.Handle;
     public Size Size { get => HostWindow.Size; set => HostWindow.Size = value; }
     public Point Location { get => HostWindow.Location; set => HostWindow.Location = value; }
@@ -85,12 +111,34 @@ public partial class Formedge : IWin32Window
         get => HostWindow.Fullscreen;
         set => HostWindow.Fullscreen = value;
     }
+    public bool ShowDocumentTitle { get; set; } = true;
+
     public void ToggleFullscreen()
     {
         Fullscreen = !Fullscreen;
     }
+    public void Activate()
+    {
+        HostWindow.Activate();
+        if (WebView.Initialized)
+        {
+            WebView.Controller.MoveFocus(CoreWebView2MoveFocusReason.Programmatic);
+        }
+    }
 
-    public bool ShowDocumentTitle { get; set; } = true;
+    public void Close() => HostWindow.Close();
+
+    public void Show(IWin32Window? owner) => HostWindow.Show(owner);
+
+    public void Show() => HostWindow.Show();
+
+    public DialogResult ShowDialog(IWin32Window? owner) => HostWindow.ShowDialog(owner);
+
+    public DialogResult ShowDialog() => HostWindow.ShowDialog();
+
+    public void CenterToParent() => HostWindow.CenterToParent();
+
+    public void CenterToScreen() => HostWindow.CenterToScreen();
 
     protected virtual void UpdateFormText()
     {
@@ -105,41 +153,22 @@ public partial class Formedge : IWin32Window
 
 
     }
-
-    public event EventHandler? Activated;
-    public event EventHandler? Deactivate;
-
-    public event EventHandler? ResizeBegin;
-    public event EventHandler? Resize;
-    public event EventHandler? ResizeEnd;
-    public event EventHandler? Move;
-    public event EventHandler? Shown;
-    public event EventHandler? VisibleChanged;
-    public event FormClosingEventHandler? FormClosing;
-    public event FormClosedEventHandler? FormClosed;
-
-    public event EventHandler? GotFocus;
-    public event EventHandler? LostFocus;
-
-    public void Activate()
-    {
-        HostWindow.Activate();
-        if (WebView.Initialized)
-        {
-            WebView.Controller.MoveFocus(CoreWebView2MoveFocusReason.Programmatic);
-        }
-    }
-
-    public void Close() => HostWindow.Close();
-    public void Show(IWin32Window? owner) => HostWindow.Show(owner);
-    public void Show() => HostWindow.Show();
-    public DialogResult ShowDialog(IWin32Window? owner) => HostWindow.ShowDialog(owner);
-    public DialogResult ShowDialog() => HostWindow.ShowDialog();
-    public void CenterToParent() => HostWindow.CenterToParent();
-    public void CenterToScreen() => HostWindow.CenterToScreen();
-
     protected virtual bool WndProc(ref Message m)
     {
+        var msg = (uint)m.Msg;
+
+        //Debug.WriteLine(m);
+
+
+        //if (msg == WM_NCHITTEST && _isSnapLayoutsRequired)
+        //{
+        //    m.Result = (nint)HTMAXBUTTON;
+
+        //    return true;
+
+        //}
+
+
         return false;
     }
 

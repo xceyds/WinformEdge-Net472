@@ -9,24 +9,34 @@ using WinFormedge.WebResource;
 namespace WinFormedge;
 partial class WebViewCore
 {
-    private const string ABOUT_BLANK = "about:blank";
-
-    private string? _defferedUrl;
-
-    private CoreWebView2Controller? _controller;
-
     public event EventHandler? WebViewCreated;
 
     public event Action<CoreWebView2Settings>? ConfigureSettings;
 
     public bool Initialized => _controller != null;
+    
+    public void RegisterWebResourceHander(WebResourceHandler resourceHandler)
+    {
+        WebResourceManager.RegisterWebResourceHander(resourceHandler);
+    }
+
+    public void UnregisterWebResourceHander(WebResourceHandler resourceHandler)
+    {
+        WebResourceManager.UnregisterWebResourceHander(resourceHandler);
+    }
 
     internal CoreWebView2Environment WebViewEnvironment => FormedgeApp.Current!.WebView2Environment;
-
+    
     internal CoreWebView2Controller Controller => _controller ?? throw new NullReferenceException(nameof(Controller));
 
     internal CoreWebView2? Browser => _controller?.CoreWebView2;
+    
+    private const string ABOUT_BLANK = "about:blank";
 
+    private string? _defferedUrl;
+
+    private CoreWebView2Controller? _controller;
+    
     private WebResourceManager WebResourceManager { get; } = new WebResourceManager();
 
     private async void CreateWebView2()
@@ -41,12 +51,12 @@ partial class WebViewCore
 
         if (controller == null || controller.CoreWebView2 == null)
         {
-            throw new InvalidOperationException("Failed to create WebView2 controller.");
+            var ex = new InvalidOperationException("Failed to create WebView2 controller.");
+            throw ex;
         }
         
         controller.ShouldDetectMonitorScaleChanges = true;
         controller.Bounds = Container.ClientRectangle;
-        //controller.IsVisible = false;
 
         var webview = controller!.CoreWebView2;
 
@@ -61,9 +71,7 @@ partial class WebViewCore
         webview.Settings.IsPinchZoomEnabled = false;
         webview.Settings.IsNonClientRegionSupportEnabled = true;
 
-
         ConfigureSettings?.Invoke(webview.Settings);
-
 
         webview.Profile.PreferredColorScheme = FormedgeApp.Current.SystemColorMode switch
         {
@@ -92,25 +100,10 @@ partial class WebViewCore
 
         WebViewCreated?.Invoke(Container, EventArgs.Empty);
 
-
         webview.Navigate(_defferedUrl ?? ABOUT_BLANK);
 
         controller.MoveFocus(CoreWebView2MoveFocusReason.Programmatic);
 
         _defferedUrl = null;
     }
-
-    public void RegisterWebResourceHander(WebResourceHandler resourceHandler)
-    {
-        WebResourceManager.RegisterWebResourceHander(resourceHandler);
-    }
-
-    public void UnregisterWebResourceHander(WebResourceHandler resourceHandler)
-    {
-        WebResourceManager.UnregisterWebResourceHander(resourceHandler);
-    }
-
-
 }
-
-

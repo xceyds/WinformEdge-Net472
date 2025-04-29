@@ -18,10 +18,10 @@
         <ApplicationDefaultFont>Segoe UI,9pt</ApplicationDefaultFont>
 
 
-        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+        <!--<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <PublishAot>true</PublishAot>
         <_SuppressWinFormsTrimError>true</_SuppressWinFormsTrimError>
-        <!--<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
         <TrimMode>partial</TrimMode>-->
 
     </PropertyGroup>

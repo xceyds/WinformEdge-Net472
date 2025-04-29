@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 namespace WinFormedge;
 partial class WebViewCore
 {
+    
     public WebViewCore(Control hostControl)
     {
-        HostControl = hostControl;
+        _hostControl = hostControl;
         Container.HandleCreated += HostHandleCreated;
         Container.HandleDestroyed += HostHandleDestroyed;
     }

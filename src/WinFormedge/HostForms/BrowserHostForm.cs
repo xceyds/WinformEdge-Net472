@@ -728,6 +728,8 @@ public class BrowserHostForm : Form
                         {
                             BOOL useHostBackdropBrush = true;
                             DwmSetWindowAttribute((HWND)Handle, DWMWINDOWATTRIBUTE.DWMWA_USE_HOSTBACKDROPBRUSH, &useHostBackdropBrush, (uint)sizeof(BOOL));
+
+                            
                         }
 
                     }
@@ -745,15 +747,15 @@ public class BrowserHostForm : Form
                     Marshal.StructureToPtr(nccalc, m.LParam, false);
                 }
                 return;
-            case WM_NCHITTEST:
-                {
-                    if (Popup || ExtendsContentIntoTitleBar)
-                    {
-                        m.Result = (nint)HitTestNCA(lParam);
-                        return;
-                    }
-                }
-                break;
+            //case WM_NCHITTEST:
+            //    {
+            //        if (Popup || ExtendsContentIntoTitleBar)
+            //        {
+            //            m.Result = (nint)HitTestNCA(lParam);
+            //            return;
+            //        }
+            //    }
+            //    break;
 
         }
         var handled = OnWindowProc?.Invoke(ref m) ?? false;

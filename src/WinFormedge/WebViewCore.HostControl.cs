@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 namespace WinFormedge;
 partial class WebViewCore
 {
-    internal Control HostControl { get; }
+    internal Control _hostControl;
 
-    internal Control Container
+    public Control Container
     {
         get
         {
-            return HostControl.TopLevelControl ?? HostControl;
+            return _hostControl.TopLevelControl ?? _hostControl;
         }
     }
 

@@ -4,8 +4,41 @@
 <head>
     <meta charset="utf-8" />
     <title>Embedded</title>
+    <style type="text/css">
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            app-region: drag;
+        }
+
+        main {
+            padding: 20px;
+        }
+    </style>
 </head>
 <body>
-    Hello world!
+    <header>
+        <span>WinFormedge App</span>
+    </header>
+
+    <main>
+        <div>
+            <button id="minimizeButton" app-command="Minimize">Minimize</button>
+            <button id="maximizeButton" app-command="Maximize" title="最大化">Toggle Maximize</button>
+            <button id="fullscreenButton" app-command="FullScreen">Toggle FullScreen</button>
+            <button id="closeButton" app-command="Close">Close</button>
+        </div>
+
+    </main>
+
+
 </body>
 </html>
