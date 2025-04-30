@@ -383,7 +383,7 @@ public class BrowserHostForm : Form
         this.Name = "WinFormedgeForm";
         this.Text = "WinFormedge";
         this.AutoScaleMode = AutoScaleMode.Dpi;
-        this.BackColor = Color.White;
+        this.BackColor = Color.Transparent;
         this.ResumeLayout(false);
     }
 

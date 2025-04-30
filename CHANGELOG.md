@@ -1,4 +1,34 @@
 ﻿## Change Logs
+
+### 2025/4/30
+
+添加前端JS与窗口交互逻辑
+
+- 重构了前端 `moveTo`, `moveBy`, `resizeTo`, `resizeBy` 方法，使其支持移动和调整窗口大小（默认情况下这些命令是不被支持的）。
+- 为前端 `window` 对象添加了以下事件：
+    - `windowactivated`: 当窗口被激活时触发。
+    - `windowdeactivate`: 当窗口失去焦点时触发。
+    - `windowresize(param:{x, y, width, height})`: 当窗口大小发生变化时触发。
+    - `windowmove(param:{x, y, screenX, screenY})`: 当窗口位置发生变化时触发。
+- 为前端 `window` 对象添加了 `hostWindow` 对象，用户能够在前端通过该对象访问窗口的相关属性和方法：
+    - 属性 `activated - > bool`: 获取窗口是否处于激活状态。
+    - 属性 `hasTitleBar - > bool`: 获取窗口是否有标题栏。
+    - 属性 `windowState - > string(fullscreen|normal|maximized|minimized)`: 获取窗口当前状态。
+    - 方法 `close()`: 关闭窗口。
+    - 方法 `maximize()`: 最大化窗口。
+    - 方法 `minimize()`: 最小化窗口。
+    - 方法 `restore()`: 恢复窗口。
+    - 方法 `fullscreen()`: 设置窗口全屏状态。
+    - 方法 `toggleFullscreen()`: 切换窗口全屏状态。
+- 为前端页面的 `html` 元素 `class` 属性添加了以下样式名称，以指示当前窗口状态，方便用户直接使用 css 进行样式设置：
+    - `window--activated`: 当窗口处于激活状态时添加。
+    - `window--deactivate`: 当窗口处于非激活状态时添加。
+    - `window--fullscreen`: 当窗口处于全屏状态时添加。
+    - `window--maximized`: 当窗口处于最大化状态时添加。
+    - `window--minimized`: 当窗口处于最小化状态时添加。
+
+
+
 ### 2025/4/29
 
 添加了JS与窗口交互逻辑

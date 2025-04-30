@@ -61,30 +61,7 @@ namespace WinFormedge.Properties {
         }
         
         /// <summary>
-        ///   查找类似 var formedge;
-        ///
-        ///(function () {
-        ///
-        ///    const WINDOW_COMMAND_ATTR_NAME = &quot;app-command&quot;;
-        ///
-        ///
-        ///
-        ///    class HostWindow {
-        ///
-        ///    }
-        ///
-        ///
-        ///    window.addEventListener(&quot;load&quot;, () =&gt; {
-        ///
-        ///        //window.addEventListener(&quot;click&quot;, (e) =&gt; {
-        ///        //    const button = e.button;
-        ///
-        ///        //    if (button === 0) {
-        ///        //        let srcElement = e.target;
-        ///
-        ///        //        while (srcElement &amp;&amp; !srcElement.hasAttribute(WINDOW_COMMAND_ATTR_NAME)) {
-        ///        //            srcElement = srcElement.parentElement;
-        /// [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        ///   查找类似 (function(){function r(n){window.chrome?.webview?.postMessage?window.chrome.webview.postMessage(n):console.error(&quot;[window.chrome.webview.postMessage] is not supported in this environment.&quot;)}function n(n,t){window.dispatchEvent(new Event(n,{detail:t}))}function u(t){const{state:i}=t;if(i){n(&quot;windowstatechange&quot;,{state:i});const r=document.querySelector(&quot;html&quot;);r?.classList.toggle(&quot;window-maximized&quot;,i===&quot;maximized&quot;);r?.classList.toggle(&quot;window-minimized&quot;,i===&quot;minimized&quot;);r?.classList.toggle(&quot;window-fullscreen&quot; [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string Formedge {
             get {

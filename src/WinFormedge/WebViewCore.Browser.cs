@@ -57,6 +57,7 @@ partial class WebViewCore
         
         controller.ShouldDetectMonitorScaleChanges = true;
         controller.Bounds = Container.ClientRectangle;
+        controller.DefaultBackgroundColor = Color.Transparent;
 
         var webview = controller!.CoreWebView2;
 

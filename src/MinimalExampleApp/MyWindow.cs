@@ -15,8 +15,9 @@ internal class MyWindow : Formedge
         Size = new Size(1440, 900);
 
         MinimumSize = new Size(1440, 900);
+        DefaultBackgroundColor = Color.Transparent;
 
-        WindowSystemBackdropType = SystemBackdropType.TransientWindow;
+        WindowSystemBackdropType = SystemBackdropType.BlurBehind;
 
         Load += MyWindow_Load;
         DOMContentLoaded += MyWindow_DOMContentLoaded;
@@ -33,7 +34,7 @@ internal class MyWindow : Formedge
 
     private void MyWindow_Load(object? sender, EventArgs e)
     {
-
+        
     }
 
     private void MyWindow_DOMContentLoaded(object? sender, CoreWebView2DOMContentLoadedEventArgs e)
@@ -45,5 +46,11 @@ const headerEl = document.querySelector("#hdr");
 headerEl.style.appRegion="drag";
 })();
 """");
+    }
+
+    protected override void ConfigureWebView2Settings(CoreWebView2Settings settings)
+    {
+        base.ConfigureWebView2Settings(settings);
+        
     }
 }

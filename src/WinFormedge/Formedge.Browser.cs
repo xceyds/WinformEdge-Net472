@@ -33,7 +33,7 @@ public partial class Formedge
     private Color _defaultBackgroundColor = Color.White;
     internal protected Color DefaultBackgroundColor
     {
-        get => WebView.Initialized ? WebView.Controller.DefaultBackgroundColor : _defaultBackgroundColor;
+        get => _defaultBackgroundColor;
         set {
             if (WebView.Initialized)
             {

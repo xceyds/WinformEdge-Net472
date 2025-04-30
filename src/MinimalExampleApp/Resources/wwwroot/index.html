@@ -22,6 +22,29 @@
         main {
             padding: 20px;
         }
+
+        #activated-status {
+            width: 60px;
+        }
+
+
+        .window--activated #activated-status{
+            background-color:green;
+        }
+
+        .window--deactivate #activated-status {
+            background-color: dimgray;
+        }
+
+        .window--activated #activated-status:after {
+            background-color: green;
+            content: "ACTIVATED";
+        }
+
+        .window--deactivate #activated-status:after {
+            background-color: dimgray;
+            content: "DEACTIVATE"
+        }
     </style>
 </head>
 <body>
@@ -37,7 +60,12 @@
             <button id="closeButton" app-command="Close">Close</button>
         </div>
 
+        <div>
+            Activated: <span id="activated-status"></span>
+        </div>
     </main>
+
+    
 
 
 </body>

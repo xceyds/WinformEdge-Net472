@@ -111,7 +111,7 @@ public partial class Formedge : IWin32Window
         get => HostWindow.Fullscreen;
         set => HostWindow.Fullscreen = value;
     }
-    public bool ShowDocumentTitle { get; set; } = true;
+    public bool ShowDocumentTitle { get; set; } = false;
 
     public void ToggleFullscreen()
     {
@@ -150,25 +150,10 @@ public partial class Formedge : IWin32Window
         {
             HostWindow.Text = WindowText;
         }
-
-
     }
+
     protected virtual bool WndProc(ref Message m)
     {
-        var msg = (uint)m.Msg;
-
-        //Debug.WriteLine(m);
-
-
-        //if (msg == WM_NCHITTEST && _isSnapLayoutsRequired)
-        //{
-        //    m.Result = (nint)HTMAXBUTTON;
-
-        //    return true;
-
-        //}
-
-
         return false;
     }
 
