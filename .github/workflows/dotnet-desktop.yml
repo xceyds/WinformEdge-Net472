@@ -1,8 +1,6 @@
 name: Build and Publish
 
 on:
-  pull_request:
-    branches: [Build]
   push:
     branches: [Build]
 
@@ -13,7 +11,7 @@ jobs:
     runs-on: windows-latest
 
     env:
-      Solution_Name: .\"WinFormedge.sln"
+      Solution_Name: "WinFormedge.sln"
 
     steps:
       - name: Checkout repository
