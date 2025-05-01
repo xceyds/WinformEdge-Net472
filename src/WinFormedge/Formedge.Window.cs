@@ -120,6 +120,7 @@ public partial class Formedge : IWin32Window
     public void Activate()
     {
         HostWindow.Activate();
+        HostWindow.BringToFront();
         if (WebView.Initialized)
         {
             WebView.Controller.MoveFocus(CoreWebView2MoveFocusReason.Programmatic);
