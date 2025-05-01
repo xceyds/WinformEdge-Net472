@@ -40,10 +40,35 @@
 
     <PropertyGroup>
         <Version>0.1.3179.$([System.DateTime]::Now.Date.Subtract($([System.DateTime]::Parse($([System.String]::Format("{0}-4-20",2025))))).TotalDays)</Version>
-        <Title>WinFormedge</Title>
-        <Description>A library based on Microsoft WebView2 that can buid powerful WinForms applications with HTML, CSS and JavaScript easily.</Description>
-
+        <Title>WinFormedge for Windows Form Applications</Title>
+        <Description>An open source library based on Microsoft WebView2 that can buid powerful WinForm applications with HTML, CSS and JavaScript easily.</Description>
+        <PackageTags>WebView2 WinForms WinFormedge Formedge Chromium Hybird-App</PackageTags>
+        <PackageIcon>WinFormedgeLogo.png</PackageIcon>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryType>git</RepositoryType>
+        <PackageProjectUrl>https://github.com/XuanchenLin/WinFormedge</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/XuanchenLin/WinFormedge.git</RepositoryUrl>
+        <PackageOutputPath>$(BinDir)</PackageOutputPath>
+        <DelaySign>False</DelaySign>
+        <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <SignAssembly>False</SignAssembly>
+        <DebugType>portable</DebugType>
+        <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     </PropertyGroup>
-
-
+    
+    <PropertyGroup Condition="'$(Configuration)'=='Release'">
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <None Include="..\..\artworks\WinFormedgeLogo.png">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+        <None Include=".\README.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
 </Project>

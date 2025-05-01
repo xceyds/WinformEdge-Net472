@@ -230,6 +230,11 @@
             if (!window.chrome?.webview?.hostObjects?.hostWindow) return;
             var win = window.chrome?.webview?.hostObjects?.hostWindow;
             await win.Close();
+        },
+        activate: async () => {
+            if (!window.chrome?.webview?.hostObjects?.hostWindow) return;
+            var win = window.chrome?.webview?.hostObjects?.hostWindow;
+            await win.Activate();
         }
     };
 

@@ -64,6 +64,10 @@ public abstract partial class Formedge
             _formedge.Close();
         }
 
+        public void Activate()
+        {
+            _formedge.Activate();
+        }
 
         public FormedgeHostObject(Formedge formedge)
         {
