@@ -1,5 +1,16 @@
 ﻿## Change Logs
 
+### 2025/5/3
+
+添加了透明窗体的支持，现在可以完全用 HTML 绘制窗体了
+
+- 重构了 `Formdge` 类，添加了虚方法 `ConfigureHostWindowSettings`，这将窗体的初始化逻辑放到这个类中，同时为未来提供了更多窗口样式的扩展性。目前仅支持的 `UseDefaultWindow` 方法。
+- 使用 `UseDefaultWindow` 后返回一个窗体属性的配置类，在其中的 `SystemBackdropType` 属性添加了 `Manual` 值，配合将 `ShowWindowDecorators` 设置为 `false`，可以实现完全透明的窗体，这样就可以完全用 HTML 绘制窗体了。使用 `WindowEdgeOffsets` 属性，可以设置窗体的边距，排除掉 HTML 绘制的投影区域，能够自由的定制窗体 HITTEST 区域。
+
+![2025/5/3](./screenshots/2025-05-03_174500.png)
+
+
+
 ### 2025/4/30
 
 添加前端JS与窗口交互逻辑

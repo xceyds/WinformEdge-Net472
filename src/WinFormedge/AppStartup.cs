@@ -13,7 +13,7 @@ public abstract class AppStartup
         return true;
     }
 
-    internal abstract protected AppCreationAction? OnApplicationStartup(StartupOptions options);
+    internal abstract protected AppCreationAction? OnApplicationStartup(StartupSettings options);
 
     internal protected virtual void OnApplicationException(Exception? exception = null)
     {

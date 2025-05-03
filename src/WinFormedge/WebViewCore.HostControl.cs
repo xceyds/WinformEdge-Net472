@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection.Metadata;
@@ -9,6 +10,89 @@ using System.Threading.Tasks;
 namespace WinFormedge;
 partial class WebViewCore
 {
+
+    class FullscreenWindow : Form
+    {
+        private bool _isNonClientRegionSupportEnabled;
+        public FullscreenWindow(WebViewCore webview)
+        {
+            FormBorderStyle = FormBorderStyle.None;
+            BackColor = Color.Black;
+            AutoScaleMode = AutoScaleMode.Dpi;
+            ShowInTaskbar = false;
+            WebView = webview;
+            StartPosition = FormStartPosition.Manual;
+
+            Location = webview.Container.Location;
+            Size = webview.Container.Size;
+
+            _isNonClientRegionSupportEnabled = webview.Browser?.Settings.IsNonClientRegionSupportEnabled ?? false;
+        }
+
+        public WebViewCore WebView { get; }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+
+            var screen = Screen.FromHandle(WebView.Container.Handle);
+
+            WebView.Controller.Bounds = ClientRectangle;
+            WebView.Controller.ParentWindow = Handle;
+
+            WebView.Browser!.Settings.IsNonClientRegionSupportEnabled = false;
+
+
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+
+            WebView.Controller.Bounds = ClientRectangle;
+            WebView.Browser!.Settings.IsNonClientRegionSupportEnabled = _isNonClientRegionSupportEnabled;
+
+
+        }
+
+        protected override void OnShown(EventArgs e)
+        {
+            WebView.Container.Hide();
+
+            base.OnShown(e);
+
+            WindowState = FormWindowState.Maximized;
+
+            Activate();
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            WebView.Controller.ParentWindow = WebView.Container.Handle;
+
+            WebView.Controller.Bounds = WebView.Container.ClientRectangle;
+
+            WebView.Container.Show();
+
+            base.OnClosing(e);
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            var msg = (uint)m.Msg;
+
+            switch (msg)
+            {
+                case WM_SYSCOMMAND:
+                    return;
+            }
+
+            base.WndProc(ref m);
+        }
+
+    }
+
+
     internal Control _hostControl;
 
     public Control Container

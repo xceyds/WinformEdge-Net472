@@ -7,8 +7,8 @@ public enum SystemBackdropType
     Manual,
     Acrylic,
     None,
-    MainWindow,
-    TransientWindow,
-    TabbedWindow
+    Mica,
+    MicaAlt,
+    Transient,
 }
 

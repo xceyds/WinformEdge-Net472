@@ -16,126 +16,44 @@ using WinFormedge.WebResource;
 
 public abstract partial class Formedge
 {
-    [ComVisible(true)]
-    [ClassInterface(ClassInterfaceType.AutoDual)]
-    public class FormedgeHostObject
-    {
-        private readonly Formedge _formedge;
+    private readonly string FORMEDGE_MESSAGE_PASSCODE = Guid.NewGuid().ToString("N");
 
-        public bool Activated { get; set; }
-        public bool HasTitleBar => !_formedge.ExtendsContentIntoTitleBar && !_formedge.UseAsPopup;
-        public string WindowState => _formedge.Fullscreen ? "fullscreen" : _formedge.WindowState.ToString().ToLower();
+    internal protected bool HasSystemTitlebar => _windowStyleSettings.HasSystemTitlebar;
+    internal protected bool AllowFullscreen => _windowStyleSettings.AllowFullScreen;
 
+    //internal bool AllowSystemMenuOnNonClientRegion => _windowStyleSettings.AllowSystemMenuOnNonClientRegion;
 
-        public void Minimize()
-        {
-            _formedge.WindowState = FormWindowState.Minimized;
-        }
-
-        public void Maximize()
-        {
-            _formedge.WindowState = FormWindowState.Maximized;
-        }
-
-        public void Restore()
-        {
-            if (_formedge.Fullscreen)
-            {
-                _formedge.Fullscreen = false;
-            }
-            else
-            {
-                _formedge.WindowState = FormWindowState.Normal;
-            }
-        }
-
-        public void Fullscreen()
-        {
-            _formedge.Fullscreen = true;
-        }
-
-        public void ToggleFullscreen()
-        {
-            _formedge.Fullscreen = !_formedge.Fullscreen;
-        }
-
-        public void Close()
-        {
-            _formedge.Close();
-        }
-
-        public void Activate()
-        {
-            _formedge.Activate();
-        }
-
-        public FormedgeHostObject(Formedge formedge)
-        {
-            _formedge = formedge;
-
-            Activated = _formedge.HostWindow.Focused;
-
-            _formedge.Activated += (_, _) => Activated = true;
-            _formedge.Deactivate += (_, _) => Activated = false;
-        }
-
-    }
-
-    private static readonly string FORMEDGE_MESSAGE_PASSCODE = Guid.NewGuid().ToString("N");
     private FormedgeHostObject? _formedgeHostObject = null;
+    private readonly WindowSettings _windowStyleSettings;
+    private readonly HostWindowBuilder _hostWindowBuilder;
+
     public Formedge()
     {
-        HostWindow = new BrowserHostForm();
+        _hostWindowBuilder = new HostWindowBuilder();
+        _windowStyleSettings = ConfigureHostWindowSettings(_hostWindowBuilder);
+
+        var hostWindow = _windowStyleSettings.CreateHostWindow();
+
+        if (hostWindow is null) throw new InvalidOperationException("HostWindow can't be null.");
+
+        _windowStyleSettings.ConfigureWinFormProps(hostWindow);
+
+        HostWindow = hostWindow;
 
         WebView = new WebViewCore(HostWindow);
 
-        WebView.WebViewCreated += (_, _) =>
-        {
-            if (WebView.Browser == null) throw new InvalidOperationException();
+        WebView.WebViewCreated += (_, _) => WebViewCreatedCore();
 
-            _formedgeHostObject = new FormedgeHostObject(this);
+        _windowStyleSettings.WndProc += WebView.HostWndProc;
+        _windowStyleSettings.WndProc += WndProcCore;
+        _windowStyleSettings.DefWndProc += DefWndProcCore;
 
+        HostWindowCreatedCore();
 
-            var controller = WebView.Controller;
-            var webview = WebView.Browser;
+    }
 
-            controller.DefaultBackgroundColor = DefaultBackgroundColor;
-
-            WebView.ConfigureSettings += ConfigureWebView2Settings;
-
-            controller.GotFocus += OnGotFocus;
-            controller.LostFocus += OnLostFocus;
-
-            webview.ContentLoading += OnContentLoading;
-            webview.NavigationStarting += OnNavigationStarting;
-            webview.NavigationCompleted += OnNavigationCompleted;
-            webview.DOMContentLoaded += OnDOMContentLoaded;
-            webview.WebMessageReceived += OnWebMessageReceived;
-
-            webview.ContextMenuRequested += OnContextMenuRequestedCore;
-            webview.DocumentTitleChanged += OnDocumentTitleChangedCore;
-            webview.StatusBarTextChanged += OnStatusBarTextChangedCore;
-
-            webview.Settings.IsNonClientRegionSupportEnabled = HostWindow.ExtendsContentIntoTitleBar || HostWindow.Popup;
-
-            _setVirtualHostNameToFolderMapping?.Invoke();
-            var script = Properties.Resources.Formedge;
-
-            var version = typeof(Formedge).Assembly.GetName().Version?.ToString() ?? webview.Environment.BrowserVersionString;
-
-            script = script.Replace("{{FORMEDGE_MESSAGE_PASSCODE}}", FORMEDGE_MESSAGE_PASSCODE);
-            script = script.Replace("{{WINFORMEDGE_VERSION_INFO}}", $"%cChromium%c{webview.Environment.BrowserVersionString}%c %cFormedge%c{version}%c %cArchitect%c{(IntPtr.Size == 4 ? "x86" : "x64")}%c");
-            script = script.Replace("{{WINFORMEDGE_VERSION}}", version);
-
-            webview.WebMessageReceived += CoreWebView2WebMessageReceived;
-
-            webview.AddHostObjectToScript("hostWindow", _formedgeHostObject!);
-
-            webview.AddScriptToExecuteOnDocumentCreatedAsync(script);
-
-            OnLoad();
-        };
-
+    private void HostWindowCreatedCore()
+    {
         HostWindow.Activated += OnActivatedCore;
         HostWindow.Deactivate += OnDeactivateCore;
         HostWindow.ResizeBegin += OnResizeBegin;
@@ -144,23 +62,90 @@ public abstract partial class Formedge
         HostWindow.VisibleChanged += OnVisibleChanged;
         HostWindow.Move += OnMoveCore;
         HostWindow.Shown += OnShown;
-        HostWindow.FormClosing += OnFormClosing;
+        HostWindow.FormClosing += OnFormClosingCore;
         HostWindow.FormClosed += OnFormClosed;
+    }
+
+    private void OnFormClosingCore(object? sender, FormClosingEventArgs e)
+    {
+        OnFormClosing(this, e);
+
+        if (!e.Cancel)
+        {
+            WebView.Close();
+        }
+    }
+
+    private void WebViewCreatedCore()
+    {
+        if (WebView.Browser == null) throw new InvalidOperationException();
+
+        _formedgeHostObject = new FormedgeHostObject(this);
 
 
-        HostWindow.OnWindowProc += WebView.HostWndProc;
-        HostWindow.OnWindowProc += WndProc;
-        HostWindow.OnDefWindowProc += DefWndProc;
+        var controller = WebView.Controller;
+        var webview = WebView.Browser;
+
+        controller.DefaultBackgroundColor = BackColor;
+
+        WebView.ConfigureSettings += ConfigureWebView2Settings;
+
+        controller.GotFocus += OnGotFocus;
+        controller.LostFocus += OnLostFocus;
+
+        webview.ContentLoading += OnContentLoading;
+        webview.NavigationStarting += OnNavigationStarting;
+        webview.NavigationCompleted += OnNavigationCompleted;
+        webview.DOMContentLoaded += OnDOMContentLoaded;
+        webview.WebMessageReceived += CoreWebView2WebMessageReceivedCore;
+
+
+        webview.ContextMenuRequested += OnContextMenuRequestedCore;
+        webview.DocumentTitleChanged += OnDocumentTitleChangedCore;
+        webview.StatusBarTextChanged += OnStatusBarTextChangedCore;
+
+        webview.Settings.IsNonClientRegionSupportEnabled = !HasSystemTitlebar && !Fullscreen;
+
+        _setVirtualHostNameToFolderMapping?.Invoke();
+
+        var script = Properties.Resources.Formedge;
+
+        var version = typeof(Formedge).Assembly.GetName().Version?.ToString() ?? webview.Environment.BrowserVersionString;
+
+        script = script.Replace("{{FORMEDGE_MESSAGE_PASSCODE}}", FORMEDGE_MESSAGE_PASSCODE);
+        script = script.Replace("{{WINFORMEDGE_VERSION_INFO}}", $"%cChromium%c{webview.Environment.BrowserVersionString}%c %cFormedge%c{version}%c %cArchitect%c{(IntPtr.Size == 4 ? "x86" : "x64")}%c");
+        script = script.Replace("{{WINFORMEDGE_VERSION}}", version);
+        script = script.Replace("{{HAS_TITLE_BAR}}", HasSystemTitlebar ? "true" : "false");
+
+
+        webview.AddHostObjectToScript("hostWindow", _formedgeHostObject!);
+
+        webview.AddScriptToExecuteOnDocumentCreatedAsync(script);
+
+        if (_windowStyleSettings.WindowSpecifiedJavaScript is not null)
+        {
+            webview.AddScriptToExecuteOnDocumentCreatedAsync(_windowStyleSettings.WindowSpecifiedJavaScript);
+        }
+
+        OnLoad();
+    }
+
+    internal protected virtual WindowSettings ConfigureHostWindowSettings(HostWindowBuilder opts)
+    {
+        return opts.UseDefaultWindow();
     }
 
 
-
-    private void CoreWebView2WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
+    private void CoreWebView2WebMessageReceivedCore(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
     {
         try
         {
             var jsdoc = JsonDocument.Parse(e.WebMessageAsJson);
-            if (jsdoc == null || jsdoc.RootElement.ValueKind != JsonValueKind.Object) return;
+            if (jsdoc == null || jsdoc.RootElement.ValueKind != JsonValueKind.Object)
+            {
+                OnWebMessageReceived(sender, e);
+                return;
+            }
 
             if (jsdoc.RootElement.TryGetProperty("passcode", out var elPasscode) && jsdoc.RootElement.TryGetProperty("message", out var elMessage))
             {
@@ -173,22 +158,19 @@ public abstract partial class Formedge
                 {
                     case "FormedgeWindowCommand":
                         HandleJSWindowAppCommand(jsdoc.RootElement);
-                        break;
+                        return;
                     case "FormedgeWindowMoveTo":
                         HandleJSWindowMoveTo(jsdoc.RootElement);
-                        break;
+                        return;
                     case "FormedgeWindowMoveBy":
                         HandleJSWindowMoveBy(jsdoc.RootElement);
-                        break;
+                        return;
                     case "FormedgeWindowResizeTo":
                         HandleJSWIndowResizeTo(jsdoc.RootElement);
-                        break;
+                        return;
                     case "FormedgeWindowResizeBy":
                         HandleJSWIndowResizeBy(jsdoc.RootElement);
-                        break;
-                        //case "FormedgeWindowSnapLayoutsRequired" when OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000):
-                        //    HandleWindowSnapLayoutsRequired(jsdoc.RootElement);
-                        //    break;
+                        return;
                 }
 
 
@@ -199,7 +181,7 @@ public abstract partial class Formedge
 
         }
 
-
+        OnWebMessageReceived(sender, e);
     }
 
     private void HandleJSWIndowResizeBy(JsonElement jsonElement)
@@ -231,9 +213,6 @@ public abstract partial class Formedge
 
         Location = new Point(Left + dx, Top + dy);
     }
-
-
-
 
     private void HandleJSWindowMoveTo(JsonElement jsonElement)
     {
@@ -295,6 +274,19 @@ public abstract partial class Formedge
 
 
     //}
+    private bool WndProcCore(ref Message m)
+    {
+        return WndProc(ref m);
+    }
+
+    private bool DefWndProcCore(ref Message m)
+    {
+        return DefWndProc(ref m);
+
+
+    }
+
+
 
     public void ClearVirtualHostNameToEmbeddedResourcesMapping(EmbeddedFileResourceOptions options)
     {
@@ -336,7 +328,7 @@ public abstract partial class Formedge
         WebView.UnregisterWebResourceHander(resourceHandler);
     }
 
-    internal BrowserHostForm HostWindow { get; }
+    internal Form HostWindow { get; }
     internal WebViewCore WebView { get; }
 
 
@@ -344,6 +336,8 @@ public abstract partial class Formedge
     string? _currentWindowStateString = null;
     private void OnResizeCore(object? sender, EventArgs e)
     {
+        if (Fullscreen) return;
+
         OnResize(this, e);
 
         if (WebView.Browser == null) return;
@@ -382,6 +376,8 @@ public abstract partial class Formedge
 
     private void OnMoveCore(object? sender, EventArgs e)
     {
+        if (Fullscreen) return;
+
         OnMove(this, e);
 
         if (WebView.Browser == null) return;
@@ -409,6 +405,7 @@ public abstract partial class Formedge
 
     private void OnActivatedCore(object? sender, EventArgs e)
     {
+
         _currentWindowActivated = true;
 
         if (WebView.Initialized)
@@ -432,6 +429,7 @@ public abstract partial class Formedge
 
     private void OnDeactivateCore(object? sender, EventArgs e)
     {
+
         _currentWindowActivated = false;
         OnDeactivate(this, e);
 
@@ -505,13 +503,23 @@ public abstract partial class Formedge
 
     private void OnContextMenuRequestedCore(object? sender, CoreWebView2ContextMenuRequestedEventArgs e)
     {
+        bool IsRequiredContextMenuItem(int commandId)
+        {
+            if (FormedgeApp.Current.EnableDevTools && commandId == 50162 && AllowDeveloperTools)
+            {
+                return true;
+            }
+
+            return commandId >= 50150 && commandId <= 50157 && commandId != 50154 && commandId != 50155;
+        }
+
         var editingItems = new List<CoreWebView2ContextMenuItem>();
 
         for (int i = 0; i < e.MenuItems.Count; i++)
         {
             var item = e.MenuItems[i];
 
-            if (ContextMenuHelper.IsRequiredItem(item.CommandId) || item.Kind == CoreWebView2ContextMenuItemKind.Separator)
+            if (IsRequiredContextMenuItem(item.CommandId) || item.Kind == CoreWebView2ContextMenuItemKind.Separator)
             {
                 // 避免连续添加多个分隔符
                 if (item.Kind == CoreWebView2ContextMenuItemKind.Separator)
@@ -557,16 +565,5 @@ public abstract partial class Formedge
     {
     }
 
-    private class ContextMenuHelper
-    {
-        public static bool IsRequiredItem(int commandId)
-        {
-            if (FormedgeApp.Current.EnableDevTools && commandId == 50162)
-            {
-                return true;
-            }
 
-            return commandId >= 50150 && commandId <= 50157 && commandId != 50154 && commandId != 50155;
-        }
-    }
 }

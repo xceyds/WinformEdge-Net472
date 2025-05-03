@@ -28,10 +28,12 @@ public partial class Formedge
         get => WebView.Url;
         set => WebView.Url = value;
     }
-    
 
-    private Color _defaultBackgroundColor = Color.White;
-    internal protected Color DefaultBackgroundColor
+    public bool AllowDeveloperTools { get; set; } = true;
+
+
+    private Color _defaultBackgroundColor = Color.Transparent;
+    internal protected Color BackColor
     {
         get => _defaultBackgroundColor;
         set {
@@ -43,6 +45,9 @@ public partial class Formedge
             {
                 _defaultBackgroundColor = value;
             }
+
+            var colorWithoutAlpha = Color.FromArgb(255, _defaultBackgroundColor.R, _defaultBackgroundColor.G, _defaultBackgroundColor.B);
+            HostWindow.BackColor = colorWithoutAlpha;
         }
     }
 

@@ -1,13 +1,13 @@
 ﻿(function (window) {
-    const WINDOW_COMMAND_ATTR_NAME = "app-command";
-    const FORMEDGE_MESSAGE_PASSCODE = "{{FORMEDGE_MESSAGE_PASSCODE}}";
-    const WINFORMEDGE_VERSION = "{{WINFORMEDGE_VERSION}}";
-    const WINFORMEDGE_VERSION_INFO = `{{WINFORMEDGE_VERSION_INFO}}`
-    //const IS_SNAP_LAYOUTS_ENABLED = ("{{IS_SNAP_LAYOUTS_ENABLED}}" === "true");
+    const WINDOW_COMMAND_ATTR_NAME = `app-command`;
+    const FORMEDGE_MESSAGE_PASSCODE = `{{FORMEDGE_MESSAGE_PASSCODE}}`;
+    const WINFORMEDGE_VERSION = `{{WINFORMEDGE_VERSION}}`;
+    const WINFORMEDGE_VERSION_INFO = `{{WINFORMEDGE_VERSION_INFO}}`;
+    const HAS_TITLE_BAR = (`{{HAS_TITLE_BAR}}` === "true");
 
     function postMessage(message) {
 
-        if (window.chrome?.webview?.postMessage) {
+        if (window.chrome?.webview?.postMessage && message.message) {
             window.chrome.webview.postMessage(message);
         }
         else {
@@ -20,6 +20,8 @@
             detail: detail,
         }));
     }
+
+    window["formedgeVersion"] = WINFORMEDGE_VERSION;
 
     window.moveTo = (x, y) => {
         postMessage({
@@ -58,6 +60,8 @@
     }
 
     window.addEventListener("load", () => {
+
+        const htmlEl = document.querySelector("html");
 
         window.addEventListener("click", (e) => {
             const button = e.button;
@@ -149,6 +153,10 @@
 
         showVersionLog();
 
+        htmlEl?.classList.toggle("window__titlbar--shown", HAS_TITLE_BAR);
+        htmlEl?.classList.toggle("window__titlbar--hidden", !HAS_TITLE_BAR);
+
+
     });
 
     function showVersionLog() {
@@ -175,7 +183,7 @@
         }
 
         htmlEl?.classList.toggle("window--activated", state);
-        htmlEl?.classList.toggle("window--deactivate", !state);
+        htmlEl?.classList.toggle("window--deactivated", !state);
     }
 
     function onFormedgeNotifyWindowStateChange(data) {

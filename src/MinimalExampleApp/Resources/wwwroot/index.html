@@ -11,12 +11,22 @@
             padding: 0;
         }
 
-        header {
-            background-color: #333;
+        .window__titlbar--shown header {
+            display: none;
+        }
+
+        .window__titlbar--hidden header {
             color: white;
             padding: 10px;
             text-align: center;
             app-region: drag;
+        }
+
+        .window--activated header{
+
+        }
+
+        .window--deactivated header {
         }
 
         main {
@@ -32,7 +42,7 @@
             background-color:green;
         }
 
-        .window--deactivate #activated-status {
+        .window--deactivated #activated-status {
             background-color: dimgray;
         }
 
@@ -41,7 +51,7 @@
             content: "ACTIVATED";
         }
 
-        .window--deactivate #activated-status:after {
+        .window--deactivated #activated-status:after {
             background-color: dimgray;
             content: "DEACTIVATE"
         }

@@ -33,7 +33,7 @@ The project is currently in the early stages of development. The following miles
     - [x] Borderless Form
     - [x] Fullscreen mode
     - [x] System color mode
-    - [ ] SystemBackdrop
+    - [X] SystemBackdrop
     - [ ] DirectCompostion Visual Tree (for CoreWebView2CompositionController)
 - [ ] Implement features of the WebView
     - [x] WebView2Environment
@@ -42,8 +42,17 @@ The project is currently in the early stages of development. The following miles
     - [x] Custom Context Menu
     - [x] AppRegion support
     - [x] Resizing and Moving actions on Borderless Form
-    - [ ] Embedded File Resources for WebResourceRequest & WebResourceResponse
+    - [X] Embedded File Resources for WebResourceRequest & WebResourceResponse
     - [ ] Proxy File Resources for WebResourceRequest & WebResourceResponse
+- [ ] JavaScript Interop
+    - [x] ExecuteScriptAsync
+    - [x] AddScriptToExecuteOnDocumentCreated
+    - [x] Internal window host object
+    - [x] JavaScript to C# Interop
+
+## 🧩 Changelog
+
+The changelog for the WinFormedge project is available in the [CHANGELOG.md](./CHANGELOG.md) file. It contains a detailed list of changes, bug fixes, and new features added to the project. The changelog is updated regularly to reflect the latest changes in the project.
 
 ## 🔧 Installation
 
@@ -123,13 +132,10 @@ internal class MyWindow : Formedge
 {
     public MyWindow()
     {
-        ExtendsContentIntoTitleBar = true;
-
-        Url = "https://cn.bing.com";
-        Size = new Size(1440, 900);
-
         Load += MyWindow_Load;
         DOMContentLoaded += MyWindow_DOMContentLoaded;
+
+        Url = "https://cn.bing.com";
     }
 
     private void MyWindow_Load(object? sender, EventArgs e)
@@ -145,7 +151,21 @@ internal class MyWindow : Formedge
 const headerEl = document.querySelector("#hdr");
 headerEl.style.appRegion="drag";
 })();
-"""");
+        """");
+    }
+
+    protected override WindowSettings ConfigureHostWindowSettings(HostWindowBuilder opts)
+    {
+        // Configure the host window settings here.
+        var win = opts.UseDefaultWindow();
+
+        win.ExtendsContentIntoTitleBar = true;
+        win.MinimumSize = new Size(960, 480);
+        win.Size = new Size(1280, 800);
+        win.SystemBackdropType = SystemBackdropType.MicaAlt;
+        win.AllowFullScreen = true;
+
+        return win;
     }
 }
 ```

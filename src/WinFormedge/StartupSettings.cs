@@ -1,10 +1,10 @@
 ﻿namespace WinFormedge;
 
-public sealed class StartupOptions
+public sealed class StartupSettings
 {
 
 
-    public StartupOptions()
+    public StartupSettings()
     {
 
 
