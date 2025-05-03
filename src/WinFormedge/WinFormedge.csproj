@@ -58,6 +58,7 @@
     </PropertyGroup>
     
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
+        <Version>0.1.3179.14</Version>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     </PropertyGroup>
     
