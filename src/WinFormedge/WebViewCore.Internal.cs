@@ -14,4 +14,13 @@ partial class WebViewCore
         Container.HandleCreated += HostHandleCreated;
         Container.HandleDestroyed += HostHandleDestroyed;
     }
+
+    public void Close()
+    {
+        if (Initialized)
+        {
+            Controller.Close();
+            _controller = null;
+        }
+    }
 }

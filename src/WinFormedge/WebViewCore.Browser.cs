@@ -39,6 +39,56 @@ partial class WebViewCore
     
     private WebResourceManager WebResourceManager { get; } = new WebResourceManager();
 
+    private bool _fullscreen;
+    private bool _isFullscrrenRequired;
+
+    public bool Fullscreen
+    {
+        get => _fullscreen;
+        set
+        {
+            if (_fullscreen == value) return;
+            
+            _fullscreen = value;
+
+            if (Initialized)
+            {
+                HandleFullscreenChanged();
+            }
+            else
+            {
+                _isFullscrrenRequired = _fullscreen;
+            }
+        }
+    }
+
+    FullscreenWindow? _fullscreenWindow = null;
+
+    private void HandleFullscreenChanged()
+    {
+        if (!Initialized)
+        {
+            _isFullscrrenRequired = Fullscreen;
+            return;
+        }
+
+        var fullscreen = Fullscreen;
+
+        if (fullscreen)
+        {
+            if(_fullscreenWindow is null)
+            {
+                _fullscreenWindow = new FullscreenWindow(this);
+            }
+            _fullscreenWindow.Show();
+        }
+        else
+        {
+            _fullscreenWindow?.Close();
+            _fullscreenWindow = null;
+        }
+    }
+
     private async void CreateWebView2()
     {
         var opts = WebViewEnvironment.CreateCoreWebView2ControllerOptions();
@@ -82,18 +132,20 @@ partial class WebViewCore
         };
 
 
-        Container.VisibleChanged += (_, _) =>
-        {
-            Controller.IsVisible = Container.Visible;
-        };
+        //Container.VisibleChanged += (_, _) =>
+        //{
+        //    Controller.IsVisible = Container.Visible;
+        //};
 
         Container.Move += (_, _) =>
         {
+            if (Fullscreen) return;
             controller.NotifyParentWindowPositionChanged();
         };
 
         Container.Resize += (_, _) =>
         {
+            if (Fullscreen) return;
             Controller.Bounds = Container.ClientRectangle;
         };
 
@@ -106,5 +158,11 @@ partial class WebViewCore
         controller.MoveFocus(CoreWebView2MoveFocusReason.Programmatic);
 
         _defferedUrl = null;
+
+        if (_isFullscrrenRequired)
+        {
+            HandleFullscreenChanged();
+            _isFullscrrenRequired=false;
+        }
     }
 }

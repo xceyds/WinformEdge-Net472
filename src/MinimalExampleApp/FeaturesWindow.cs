@@ -5,19 +5,10 @@ using Microsoft.Web.WebView2.Core;
 using System.Reflection;
 
 namespace MinimalExampleApp;
-internal class MyWindow : Formedge
+internal class FeaturesWindow : Formedge
 {
-    public MyWindow()
+    public FeaturesWindow()
     {
-        ExtendsContentIntoTitleBar = true;
-
-        //Url = "https://cn.bing.com";
-        Size = new Size(1440, 900);
-
-        MinimumSize = new Size(1440, 900);
-        DefaultBackgroundColor = Color.Transparent;
-
-        WindowSystemBackdropType = SystemBackdropType.BlurBehind;
 
         Load += MyWindow_Load;
         DOMContentLoaded += MyWindow_DOMContentLoaded;
@@ -30,6 +21,19 @@ internal class MyWindow : Formedge
         });
 
         Url = "https://embedded.appresource.local";
+    }
+
+    protected override WindowSettings ConfigureHostWindowSettings(HostWindowBuilder opts)
+    {
+        var win = opts.UseDefaultWindow();
+
+        win.ExtendsContentIntoTitleBar = true;
+        win.MinimumSize = new Size(960, 480);
+        win.Size = new Size(1280, 800);
+        win.SystemBackdropType = SystemBackdropType.MicaAlt;
+        win.AllowFullScreen = true;
+
+        return win;
     }
 
     private void MyWindow_Load(object? sender, EventArgs e)

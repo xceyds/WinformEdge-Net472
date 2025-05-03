@@ -16,7 +16,6 @@
         <ApplicationUseCompatibleTextRendering>true</ApplicationUseCompatibleTextRendering>
         <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
         <ApplicationDefaultFont>Segoe UI,9pt</ApplicationDefaultFont>
-        <ApplicationManifest>app.manifest</ApplicationManifest>
 
 
         <!--<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
@@ -28,7 +27,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <EmbeddedResource Include="Resources\wwwroot\index.html" />
+      <EmbeddedResource Include="Resources\wwwroot\**\*" />
     </ItemGroup>
 
     <ItemGroup>

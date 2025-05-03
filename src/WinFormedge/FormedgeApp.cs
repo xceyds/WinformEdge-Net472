@@ -12,7 +12,7 @@ using Windows.Win32;
 
 namespace WinFormedge;
 
-internal delegate bool WindowProc(ref Message m);
+public delegate bool WindowProc(ref Message m);
 public class FormedgeApp
 {
     private static FormedgeApp? _current;
@@ -66,6 +66,8 @@ public class FormedgeApp
 
         return SystemColorMode.Light;
     }
+
+    internal bool IsDarkMode => GetSystemColorMode() == SystemColorMode.Dark;
 
 
     internal AppStartup? Startup { get; init; }
@@ -201,11 +203,14 @@ public class FormedgeApp
                 Console.WriteLine($"Error deleting cache directory: {ex.Message}");
             }
         }
+        _environment = CoreWebView2Environment.CreateAsync(
+        BrowserExecutablePath,
+        UserDataFolder,
+        opts).GetAwaiter().GetResult();
 
 
 
-
-        var startup = Startup?.OnApplicationStartup(new StartupOptions());
+        var startup = Startup?.OnApplicationStartup(new StartupSettings());
 
         if (startup == null)
         {
@@ -213,10 +218,7 @@ public class FormedgeApp
             return;
         }
 
-        _environment = CoreWebView2Environment.CreateAsync(
-    BrowserExecutablePath,
-    UserDataFolder,
-    opts).GetAwaiter().GetResult();
+
 
 
 

@@ -2,20 +2,47 @@
 
 namespace WinFormedge.HostForms;
 
+#region FormIconDisablerPlaceHolder
 public partial class _WinFormClassDisabler
 {
 
 }
+#endregion
 
-public class BrowserHostForm : Form
+
+public abstract class FormBase : Form
 {
     #region Resizer of borderless window
     internal class WebView2BorderlessResizer : Control
     {
+        Padding _borders = Padding.Empty;
         public WebView2BorderlessResizer()
         {
             Dock = DockStyle.Fill;
         }
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Padding BorderOffset { 
+            get=> _borders; 
+            set
+            {
+                if (_borders == value) return;
+
+                _borders = value;
+
+                OnResize(EventArgs.Empty);
+            }
+        }
+
+        private Padding DpiScaledBorderOffset
+        {
+            get
+            {
+                var scaleFactor = DeviceDpi / 96f;
+                return new Padding((int)(BorderOffset.Left * scaleFactor), (int)(BorderOffset.Top * scaleFactor), (int)(BorderOffset.Right * scaleFactor), (int)(BorderOffset.Bottom * scaleFactor));
+            }
+        }
+
 
 
         protected override CreateParams CreateParams
@@ -48,10 +75,21 @@ public class BrowserHostForm : Form
         {
             var border = new Point(GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXFRAME) + GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXPADDEDBORDER), GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CYFRAME) + GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXPADDEDBORDER));
 
-            var rect = new Region(ClientRectangle);
-            rect.Exclude(new Rectangle(border.X, border.Y, ClientRectangle.Width - border.X * 2, ClientRectangle.Height - border.Y * 2));
+            var windowRect = new Region(ClientRectangle);
 
-            Region = rect;
+
+            if(BorderOffset.All != 0)
+            {
+                var borderRect = new Rectangle(ClientRectangle.Left + DpiScaledBorderOffset.Left, ClientRectangle.Top + DpiScaledBorderOffset.Top, ClientRectangle.Width - DpiScaledBorderOffset.Horizontal, ClientRectangle.Height - DpiScaledBorderOffset.Vertical);
+
+                windowRect.Intersect(borderRect);
+            }
+
+            var excludedRect = new Rectangle(border.X + DpiScaledBorderOffset.Left, border.Y + DpiScaledBorderOffset.Top, ClientRectangle.Width - border.X * 2 - DpiScaledBorderOffset.Horizontal, ClientRectangle.Height - border.Y * 2 - DpiScaledBorderOffset.Vertical);
+
+            windowRect.Exclude(excludedRect);
+
+            Region = windowRect;
 
         }
 
@@ -74,7 +112,11 @@ public class BrowserHostForm : Form
                     {
                         var region = HitTestNCA(m.LParam);
 
-                        if (region == HTNOWHERE || region == HTCLIENT) break;
+                        if (region == HTNOWHERE || region == HTCLIENT) {
+                            Cursor = Cursors.Default;
+                            break;
+                        }
+                        
 
                         switch (region)
                         {
@@ -106,11 +148,6 @@ public class BrowserHostForm : Form
                         PostMessage((HWND)Parent!.Handle, (uint)WM_NCLBUTTONDOWN, hittest, m.LParam);
                     }
                     return;
-                    //case WM_NCHITTEST:
-                    //    {
-                    //        m.Result = (nint)HTTRANSPARENT;
-                    //    }
-                    //    break;
             }
 
             base.WndProc(ref m);
@@ -135,10 +172,10 @@ public class BrowserHostForm : Form
             var _resizable = true;
 
             var result =
-                (byte)HitTestNCARegionMask.left * (cursor.X < (windowRect.left + border.X) ? 1 : 0) |
-                (byte)HitTestNCARegionMask.right * (cursor.X >= (windowRect.right - border.X) ? 1 : 0) |
-                (byte)HitTestNCARegionMask.top * (cursor.Y < (windowRect.top + border.Y) ? 1 : 0) |
-                (byte)HitTestNCARegionMask.bottom * (cursor.Y >= (windowRect.bottom - border.Y) ? 1 : 0);
+                (byte)HitTestNCARegionMask.left * (cursor.X >= (windowRect.left + DpiScaledBorderOffset.Left) && cursor.X < (windowRect.left + border.X + DpiScaledBorderOffset.Left) ? 1 : 0) |
+                (byte)HitTestNCARegionMask.right * (cursor.X >= (windowRect.right - border.X - DpiScaledBorderOffset.Right) && cursor.X<= (windowRect.right - DpiScaledBorderOffset.Right ) ? 1 : 0) |
+                (byte)HitTestNCARegionMask.top * (cursor.Y >= (windowRect.top + DpiScaledBorderOffset.Top) && cursor.Y < (windowRect.top + border.Y + DpiScaledBorderOffset.Top) ? 1 : 0) |
+                (byte)HitTestNCARegionMask.bottom * (cursor.Y >= (windowRect.bottom - border.Y - DpiScaledBorderOffset.Bottom) && cursor.Y <= (windowRect.bottom - DpiScaledBorderOffset.Bottom) ? 1 : 0);
 
             return result switch
             {
@@ -357,6 +394,11 @@ public class BrowserHostForm : Form
                 _backColor = null;
                 base.BackColor = Color.White;
             }
+            else if(value.A != 255)
+            {
+                _backColor = value;
+                base.BackColor = Color.FromArgb(255, value.R, value.G, value.B);
+            }
             else
             {
                 _backColor = value;
@@ -365,12 +407,19 @@ public class BrowserHostForm : Form
 
         }
     }
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    public Padding WindowEdgeOffsets
+    {
+        get => _windowBorderResizer.BorderOffset;
+        set => _windowBorderResizer.BorderOffset = value;
+    }
 
-    public BrowserHostForm()
+    public FormBase()
     {
         InitializeComponent();
 
         _windowBorderResizer = new WebView2BorderlessResizer() { Visible = false };
+
     }
 
     private void InitializeComponent()
@@ -695,13 +744,13 @@ public class BrowserHostForm : Form
 
             switch (SystemBackdropType)
             {
-                //case SystemBackdropType.None:
+                case SystemBackdropType.None:
                 case SystemBackdropType.BlurBehind:
                 case SystemBackdropType.Manual:
                 case SystemBackdropType.Acrylic:
-                case SystemBackdropType.MainWindow:
-                case SystemBackdropType.TransientWindow:
-                case SystemBackdropType.TabbedWindow:
+                case SystemBackdropType.Mica:
+                case SystemBackdropType.Transient:
+                case SystemBackdropType.MicaAlt:
                     cp.ExStyle |= (int)WINDOW_EX_STYLE.WS_EX_NOREDIRECTIONBITMAP;
                     break;
                 default:
@@ -758,30 +807,30 @@ public class BrowserHostForm : Form
             //    break;
 
         }
-        var handled = OnWindowProc?.Invoke(ref m) ?? false;
+        //var handled = OnWindowProc?.Invoke(ref m) ?? false;
 
-        if (handled) return;
+        //if (handled) return;
 
         base.WndProc(ref m);
     }
 
     protected override void DefWndProc(ref Message m)
     {
-        var handled = OnDefWindowProc?.Invoke(ref m) ?? false;
+        //var handled = OnDefWindowProc?.Invoke(ref m) ?? false;
 
-        if (handled) return;
+        //if (handled) return;
 
         base.DefWndProc(ref m);
     }
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    internal WindowProc? OnWindowProc { get; set; }
+    //[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    //internal WindowProc? OnWindowProc { get; set; }
 
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    internal WindowProc? OnDefWindowProc { get; set; }
+    //[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    //internal WindowProc? OnDefWindowProc { get; set; }
 
-    public new void CenterToParent() => base.CenterToParent();
-    public new void CenterToScreen() => base.CenterToScreen();
+    //public new void CenterToParent() => base.CenterToParent();
+    //public new void CenterToScreen() => base.CenterToScreen();
 
     SystemBackdropType _systemBackdropType = SystemBackdropType.Auto;
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -862,9 +911,9 @@ public class BrowserHostForm : Form
         var systemBackdropType = _systemBackdropType switch
         {
             SystemBackdropType.None => DWM_SYSTEMBACKDROP_TYPE.DWMSBT_NONE,
-            SystemBackdropType.MainWindow => DWM_SYSTEMBACKDROP_TYPE.DWMSBT_MAINWINDOW,
-            SystemBackdropType.TransientWindow => DWM_SYSTEMBACKDROP_TYPE.DWMSBT_TRANSIENTWINDOW,
-            SystemBackdropType.TabbedWindow => DWM_SYSTEMBACKDROP_TYPE.DWMSBT_TABBEDWINDOW,
+            SystemBackdropType.Mica => DWM_SYSTEMBACKDROP_TYPE.DWMSBT_MAINWINDOW,
+            SystemBackdropType.Transient => DWM_SYSTEMBACKDROP_TYPE.DWMSBT_TRANSIENTWINDOW,
+            SystemBackdropType.MicaAlt => DWM_SYSTEMBACKDROP_TYPE.DWMSBT_TABBEDWINDOW,
             _ => DWM_SYSTEMBACKDROP_TYPE.DWMSBT_AUTO
         };
 

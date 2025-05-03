@@ -9,8 +9,10 @@ internal class MyFormedgeApp : AppStartup
 
         return true;
     }
-    protected override AppCreationAction? OnApplicationStartup(StartupOptions options)
+    protected override AppCreationAction? OnApplicationStartup(StartupSettings options)
     {
-        return options.UseMainWindow(new MyWindow());
+        var t = new ExcludedEdgesWindow();
+        t.ShowDialog();
+        return options.UseMainWindow(new FeaturesWindow());
     }
 }
