@@ -30,7 +30,7 @@ internal class FeaturesWindow : Formedge
         win.ExtendsContentIntoTitleBar = true;
         win.MinimumSize = new Size(960, 480);
         win.Size = new Size(1280, 800);
-        win.SystemBackdropType = SystemBackdropType.MicaAlt;
+        win.SystemBackdropType = SystemBackdropType.BlurBehind;
         win.AllowFullScreen = true;
 
         return win;
