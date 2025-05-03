@@ -16,21 +16,10 @@ using WinFormedge.WebResource;
 
 public abstract partial class Formedge
 {
-    private readonly string FORMEDGE_MESSAGE_PASSCODE = Guid.NewGuid().ToString("N");
-
-    internal protected bool HasSystemTitlebar => _windowStyleSettings.HasSystemTitlebar;
-    internal protected bool AllowFullscreen => _windowStyleSettings.AllowFullScreen;
-
-    //internal bool AllowSystemMenuOnNonClientRegion => _windowStyleSettings.AllowSystemMenuOnNonClientRegion;
-
-    private FormedgeHostObject? _formedgeHostObject = null;
-    private readonly WindowSettings _windowStyleSettings;
-    private readonly HostWindowBuilder _hostWindowBuilder;
-
     public Formedge()
     {
         _hostWindowBuilder = new HostWindowBuilder();
-        _windowStyleSettings = ConfigureHostWindowSettings(_hostWindowBuilder);
+        _windowStyleSettings = ConfigureWindowSettings(_hostWindowBuilder);
 
         var hostWindow = _windowStyleSettings.CreateHostWindow();
 
@@ -51,6 +40,121 @@ public abstract partial class Formedge
         HostWindowCreatedCore();
 
     }
+
+    public void ClearVirtualHostNameToEmbeddedResourcesMapping(EmbeddedFileResourceOptions options)
+    {
+        UnregisterWebResourceHandler(new EmbeddedFileResourceHandler(options));
+    }
+
+    public void ClearVirtualHostNameToFolderMapping(string hostName)
+    {
+        if (CoreWebView2 != null)
+        {
+            CoreWebView2.ClearVirtualHostNameToFolderMapping(hostName);
+        }
+    }
+
+    public void RegisterWebResourceHander(WebResourceHandler resourceHandler)
+    {
+        WebView.RegisterWebResourceHander(resourceHandler);
+    }
+
+    public void SetVirtualHostNameToEmbeddedResourcesMapping(EmbeddedFileResourceOptions options)
+    {
+        RegisterWebResourceHander(new EmbeddedFileResourceHandler(options));
+    }
+
+    public void SetVirtualHostNameToFolderMapping(string hostName, string folderPath, CoreWebView2HostResourceAccessKind accessKind)
+    {
+        if (CoreWebView2 != null)
+        {
+            CoreWebView2.SetVirtualHostNameToFolderMapping(hostName, folderPath, accessKind);
+        }
+        else
+        {
+            _setVirtualHostNameToFolderMapping += () => CoreWebView2!.SetVirtualHostNameToFolderMapping(hostName, folderPath, accessKind);
+        }
+    }
+
+    public void UnregisterWebResourceHandler(WebResourceHandler resourceHandler)
+    {
+        WebView.UnregisterWebResourceHander(resourceHandler);
+    }
+
+    internal Form HostWindow { get; }
+    internal WebViewCore WebView { get; }
+    internal protected bool HasSystemTitlebar => _windowStyleSettings.HasSystemTitlebar;
+    internal protected bool AllowFullscreen { get; set; }
+    internal protected virtual WindowSettings ConfigureWindowSettings(HostWindowBuilder opts)
+    {
+        return opts.UseDefaultWindow();
+    }
+
+    protected virtual void OnActivated(object? sender, EventArgs e)
+    {
+        Activated?.Invoke(this, EventArgs.Empty);
+    }
+
+    protected virtual void OnContextMenuRequested(object? sender, CoreWebView2ContextMenuRequestedEventArgs e)
+    {
+    }
+
+    protected virtual void OnDeactivate(object? sender, EventArgs e)
+    {
+        Deactivate?.Invoke(this, EventArgs.Empty);
+    }
+
+    protected virtual void OnFormClosed(object? sender, FormClosedEventArgs e)
+    {
+        FormClosed?.Invoke(this, e);
+    }
+
+    protected virtual void OnFormClosing(object? sender, FormClosingEventArgs e)
+    {
+        FormClosing?.Invoke(this, e);
+    }
+
+    protected virtual void OnMove(object? sender, EventArgs e)
+    {
+        Move?.Invoke(this, EventArgs.Empty);
+    }
+
+    protected virtual void OnResize(object? sender, EventArgs e)
+    {
+        Resize?.Invoke(this, EventArgs.Empty);
+    }
+
+    protected virtual void OnResizeBegin(object? sender, EventArgs e)
+    {
+        ResizeBegin?.Invoke(this, EventArgs.Empty);
+    }
+
+    protected virtual void OnResizeEnd(object? sender, EventArgs e)
+    {
+        ResizeEnd?.Invoke(this, EventArgs.Empty);
+    }
+
+    protected virtual void OnShown(object? sender, EventArgs e)
+    {
+        Shown?.Invoke(this, EventArgs.Empty);
+    }
+
+    protected virtual void OnVisibleChanged(object? sender, EventArgs e)
+    {
+        VisibleChanged?.Invoke(this, e);
+    }
+
+    private readonly string FORMEDGE_MESSAGE_PASSCODE = Guid.NewGuid().ToString("N");
+    //internal bool AllowSystemMenuOnNonClientRegion => _windowStyleSettings.AllowSystemMenuOnNonClientRegion;
+
+    private readonly WindowSettings _windowStyleSettings;
+    private readonly HostWindowBuilder _hostWindowBuilder;
+    private FormedgeHostObject? _formedgeHostObject = null;
+    string? _currentWindowStateString = null;
+
+    bool _currentWindowActivated = true;
+
+    private Action? _setVirtualHostNameToFolderMapping;
 
     private void HostWindowCreatedCore()
     {
@@ -129,13 +233,6 @@ public abstract partial class Formedge
 
         OnLoad();
     }
-
-    internal protected virtual WindowSettings ConfigureHostWindowSettings(HostWindowBuilder opts)
-    {
-        return opts.UseDefaultWindow();
-    }
-
-
     private void CoreWebView2WebMessageReceivedCore(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
     {
         try
@@ -285,55 +382,6 @@ public abstract partial class Formedge
 
 
     }
-
-
-
-    public void ClearVirtualHostNameToEmbeddedResourcesMapping(EmbeddedFileResourceOptions options)
-    {
-        UnregisterWebResourceHandler(new EmbeddedFileResourceHandler(options));
-    }
-
-    public void ClearVirtualHostNameToFolderMapping(string hostName)
-    {
-        if (CoreWebView2 != null)
-        {
-            CoreWebView2.ClearVirtualHostNameToFolderMapping(hostName);
-        }
-    }
-
-    public void RegisterWebResourceHander(WebResourceHandler resourceHandler)
-    {
-        WebView.RegisterWebResourceHander(resourceHandler);
-    }
-
-    public void SetVirtualHostNameToEmbeddedResourcesMapping(EmbeddedFileResourceOptions options)
-    {
-        RegisterWebResourceHander(new EmbeddedFileResourceHandler(options));
-    }
-
-    public void SetVirtualHostNameToFolderMapping(string hostName, string folderPath, CoreWebView2HostResourceAccessKind accessKind)
-    {
-        if (CoreWebView2 != null)
-        {
-            CoreWebView2.SetVirtualHostNameToFolderMapping(hostName, folderPath, accessKind);
-        }
-        else
-        {
-            _setVirtualHostNameToFolderMapping += () => CoreWebView2!.SetVirtualHostNameToFolderMapping(hostName, folderPath, accessKind);
-        }
-    }
-
-    public void UnregisterWebResourceHandler(WebResourceHandler resourceHandler)
-    {
-        WebView.UnregisterWebResourceHander(resourceHandler);
-    }
-
-    internal Form HostWindow { get; }
-    internal WebViewCore WebView { get; }
-
-
-
-    string? _currentWindowStateString = null;
     private void OnResizeCore(object? sender, EventArgs e)
     {
         if (Fullscreen) return;
@@ -400,9 +448,6 @@ public abstract partial class Formedge
             screenY = scrY,
         }));
     }
-
-    bool _currentWindowActivated = true;
-
     private void OnActivatedCore(object? sender, EventArgs e)
     {
 
@@ -442,65 +487,6 @@ public abstract partial class Formedge
             state = false
         }));
     }
-
-
-    protected virtual void OnActivated(object? sender, EventArgs e)
-    {
-        Activated?.Invoke(this, EventArgs.Empty);
-    }
-
-    protected virtual void OnContextMenuRequested(object? sender, CoreWebView2ContextMenuRequestedEventArgs e)
-    {
-    }
-
-    protected virtual void OnDeactivate(object? sender, EventArgs e)
-    {
-        Deactivate?.Invoke(this, EventArgs.Empty);
-    }
-
-    protected virtual void OnFormClosed(object? sender, FormClosedEventArgs e)
-    {
-        FormClosed?.Invoke(this, e);
-    }
-
-    protected virtual void OnFormClosing(object? sender, FormClosingEventArgs e)
-    {
-        FormClosing?.Invoke(this, e);
-    }
-
-    protected virtual void OnMove(object? sender, EventArgs e)
-    {
-        Move?.Invoke(this, EventArgs.Empty);
-    }
-
-    protected virtual void OnResize(object? sender, EventArgs e)
-    {
-        Resize?.Invoke(this, EventArgs.Empty);
-    }
-
-    protected virtual void OnResizeBegin(object? sender, EventArgs e)
-    {
-        ResizeBegin?.Invoke(this, EventArgs.Empty);
-    }
-
-    protected virtual void OnResizeEnd(object? sender, EventArgs e)
-    {
-        ResizeEnd?.Invoke(this, EventArgs.Empty);
-    }
-
-    protected virtual void OnShown(object? sender, EventArgs e)
-    {
-        Shown?.Invoke(this, EventArgs.Empty);
-    }
-
-    protected virtual void OnVisibleChanged(object? sender, EventArgs e)
-    {
-        VisibleChanged?.Invoke(this, e);
-    }
-
-    private Action? _setVirtualHostNameToFolderMapping;
-
-
     private void OnContextMenuRequestedCore(object? sender, CoreWebView2ContextMenuRequestedEventArgs e)
     {
         bool IsRequiredContextMenuItem(int commandId)

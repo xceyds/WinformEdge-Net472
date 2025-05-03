@@ -15,9 +15,8 @@ public partial class _WinFormClassDisabler
 public abstract class FormBase : Form
 {
     #region Resizer of borderless window
-    internal class WebView2BorderlessResizer : Control
+    class WebView2BorderlessResizer : Control
     {
-        Padding _borders = Padding.Empty;
         public WebView2BorderlessResizer()
         {
             Dock = DockStyle.Fill;
@@ -37,16 +36,44 @@ public abstract class FormBase : Form
             }
         }
 
-        private Padding DpiScaledBorderOffset
+        internal uint HitTestNCA(nint lParam)
         {
-            get
+            var cursor = MARCOS.ToPoint(lParam);
+
+            var border = new Point(GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXFRAME) + GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXPADDEDBORDER), GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CYFRAME) + GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXPADDEDBORDER));
+
+
+            if (!GetWindowRect((HWND)Parent!.Handle, out var windowRect))
             {
-                var scaleFactor = DeviceDpi / 96f;
-                return new Padding((int)(BorderOffset.Left * scaleFactor), (int)(BorderOffset.Top * scaleFactor), (int)(BorderOffset.Right * scaleFactor), (int)(BorderOffset.Bottom * scaleFactor));
+                return HTNOWHERE;
             }
+
+            ClientToScreen((HWND)Handle, ref cursor);
+
+            //var drag = _dragable ? HTCAPTION : HTCLIENT;
+
+            var _resizable = true;
+
+            var result =
+                (byte)HitTestNCARegionMask.left * (cursor.X >= (windowRect.left + DpiScaledBorderOffset.Left) && cursor.X < (windowRect.left + border.X + DpiScaledBorderOffset.Left) ? 1 : 0) |
+                (byte)HitTestNCARegionMask.right * (cursor.X >= (windowRect.right - border.X - DpiScaledBorderOffset.Right) && cursor.X <= (windowRect.right - DpiScaledBorderOffset.Right) ? 1 : 0) |
+                (byte)HitTestNCARegionMask.top * (cursor.Y >= (windowRect.top + DpiScaledBorderOffset.Top) && cursor.Y < (windowRect.top + border.Y + DpiScaledBorderOffset.Top) ? 1 : 0) |
+                (byte)HitTestNCARegionMask.bottom * (cursor.Y >= (windowRect.bottom - border.Y - DpiScaledBorderOffset.Bottom) && cursor.Y <= (windowRect.bottom - DpiScaledBorderOffset.Bottom) ? 1 : 0);
+
+            return result switch
+            {
+                (byte)HitTestNCARegionMask.left => _resizable ? HTLEFT : HTCLIENT,
+                (byte)HitTestNCARegionMask.right => _resizable ? HTRIGHT : HTCLIENT,
+                (byte)HitTestNCARegionMask.top => _resizable ? HTTOP : HTCLIENT,
+                (byte)HitTestNCARegionMask.bottom => _resizable ? HTBOTTOM : HTCLIENT,
+                (byte)(HitTestNCARegionMask.top | HitTestNCARegionMask.left) => _resizable ? HTTOPLEFT : HTCLIENT,
+                (byte)(HitTestNCARegionMask.top | HitTestNCARegionMask.right) => _resizable ? HTTOPRIGHT : HTCLIENT,
+                (byte)(HitTestNCARegionMask.bottom | HitTestNCARegionMask.left) => _resizable ? HTBOTTOMLEFT : HTCLIENT,
+                (byte)(HitTestNCARegionMask.bottom | HitTestNCARegionMask.right) => _resizable ? HTBOTTOMRIGHT : HTCLIENT,
+                (byte)HitTestNCARegionMask.client => HTCLIENT,
+                _ => HTNOWHERE,
+            };
         }
-
-
 
         protected override CreateParams CreateParams
         {
@@ -72,37 +99,6 @@ public abstract class FormBase : Form
             SetWindowPos((HWND)Handle, (HWND)parentHandle, 0, 0, 0, 0, SET_WINDOW_POS_FLAGS.SWP_NOACTIVATE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER | SET_WINDOW_POS_FLAGS.SWP_NOSIZE);
 
             CreateDragRegion();
-        }
-
-        private void CreateDragRegion()
-        {
-            var border = new Point(GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXFRAME) + GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXPADDEDBORDER), GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CYFRAME) + GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXPADDEDBORDER));
-
-            var windowRect = new Region(ClientRectangle);
-
-
-            if (BorderOffset.All != 0)
-            {
-                var borderRect = new Rectangle(ClientRectangle.Left + DpiScaledBorderOffset.Left, ClientRectangle.Top + DpiScaledBorderOffset.Top, ClientRectangle.Width - DpiScaledBorderOffset.Horizontal, ClientRectangle.Height - DpiScaledBorderOffset.Vertical);
-
-                windowRect.Intersect(borderRect);
-            }
-
-            var excludedRect = new Rectangle(border.X + DpiScaledBorderOffset.Left, border.Y + DpiScaledBorderOffset.Top, ClientRectangle.Width - border.X * 2 - DpiScaledBorderOffset.Horizontal, ClientRectangle.Height - border.Y * 2 - DpiScaledBorderOffset.Vertical);
-
-            windowRect.Exclude(excludedRect);
-
-            Region = windowRect;
-
-        }
-
-        private enum HitTestNCARegionMask : byte
-        {
-            client = 0b0000,
-            left = 0b0001,
-            right = 0b0010,
-            top = 0b0100,
-            bottom = 0b1000,
         }
 
         protected override void WndProc(ref Message m)
@@ -157,45 +153,45 @@ public abstract class FormBase : Form
             base.WndProc(ref m);
         }
 
-        internal uint HitTestNCA(nint lParam)
+        Padding _borders = Padding.Empty;
+        private enum HitTestNCARegionMask : byte
         {
-            var cursor = MARCOS.ToPoint(lParam);
-
-            var border = new Point(GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXFRAME) + GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXPADDEDBORDER), GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CYFRAME) + GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXPADDEDBORDER));
-
-
-            if (!GetWindowRect((HWND)Parent!.Handle, out var windowRect))
-            {
-                return HTNOWHERE;
-            }
-
-            ClientToScreen((HWND)Handle, ref cursor);
-
-            //var drag = _dragable ? HTCAPTION : HTCLIENT;
-
-            var _resizable = true;
-
-            var result =
-                (byte)HitTestNCARegionMask.left * (cursor.X >= (windowRect.left + DpiScaledBorderOffset.Left) && cursor.X < (windowRect.left + border.X + DpiScaledBorderOffset.Left) ? 1 : 0) |
-                (byte)HitTestNCARegionMask.right * (cursor.X >= (windowRect.right - border.X - DpiScaledBorderOffset.Right) && cursor.X <= (windowRect.right - DpiScaledBorderOffset.Right) ? 1 : 0) |
-                (byte)HitTestNCARegionMask.top * (cursor.Y >= (windowRect.top + DpiScaledBorderOffset.Top) && cursor.Y < (windowRect.top + border.Y + DpiScaledBorderOffset.Top) ? 1 : 0) |
-                (byte)HitTestNCARegionMask.bottom * (cursor.Y >= (windowRect.bottom - border.Y - DpiScaledBorderOffset.Bottom) && cursor.Y <= (windowRect.bottom - DpiScaledBorderOffset.Bottom) ? 1 : 0);
-
-            return result switch
-            {
-                (byte)HitTestNCARegionMask.left => _resizable ? HTLEFT : HTCLIENT,
-                (byte)HitTestNCARegionMask.right => _resizable ? HTRIGHT : HTCLIENT,
-                (byte)HitTestNCARegionMask.top => _resizable ? HTTOP : HTCLIENT,
-                (byte)HitTestNCARegionMask.bottom => _resizable ? HTBOTTOM : HTCLIENT,
-                (byte)(HitTestNCARegionMask.top | HitTestNCARegionMask.left) => _resizable ? HTTOPLEFT : HTCLIENT,
-                (byte)(HitTestNCARegionMask.top | HitTestNCARegionMask.right) => _resizable ? HTTOPRIGHT : HTCLIENT,
-                (byte)(HitTestNCARegionMask.bottom | HitTestNCARegionMask.left) => _resizable ? HTBOTTOMLEFT : HTCLIENT,
-                (byte)(HitTestNCARegionMask.bottom | HitTestNCARegionMask.right) => _resizable ? HTBOTTOMRIGHT : HTCLIENT,
-                (byte)HitTestNCARegionMask.client => HTCLIENT,
-                _ => HTNOWHERE,
-            };
+            client = 0b0000,
+            left = 0b0001,
+            right = 0b0010,
+            top = 0b0100,
+            bottom = 0b1000,
         }
 
+        private Padding DpiScaledBorderOffset
+        {
+            get
+            {
+                var scaleFactor = DeviceDpi / 96f;
+                return new Padding((int)(BorderOffset.Left * scaleFactor), (int)(BorderOffset.Top * scaleFactor), (int)(BorderOffset.Right * scaleFactor), (int)(BorderOffset.Bottom * scaleFactor));
+            }
+        }
+        private void CreateDragRegion()
+        {
+            var border = new Point(GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXFRAME) + GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXPADDEDBORDER), GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CYFRAME) + GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXPADDEDBORDER));
+
+            var windowRect = new Region(ClientRectangle);
+
+
+            if (BorderOffset.All != 0)
+            {
+                var borderRect = new Rectangle(ClientRectangle.Left + DpiScaledBorderOffset.Left, ClientRectangle.Top + DpiScaledBorderOffset.Top, ClientRectangle.Width - DpiScaledBorderOffset.Horizontal, ClientRectangle.Height - DpiScaledBorderOffset.Vertical);
+
+                windowRect.Intersect(borderRect);
+            }
+
+            var excludedRect = new Rectangle(border.X + DpiScaledBorderOffset.Left, border.Y + DpiScaledBorderOffset.Top, ClientRectangle.Width - border.X * 2 - DpiScaledBorderOffset.Horizontal, ClientRectangle.Height - border.Y * 2 - DpiScaledBorderOffset.Vertical);
+
+            windowRect.Exclude(excludedRect);
+
+            Region = windowRect;
+
+        }
     }
 
     #endregion
@@ -203,9 +199,6 @@ public abstract class FormBase : Form
     #region WindowComposition
     class WindowAccentCompositor
     {
-        nint _handle;
-        private readonly bool _isAcrylic;
-
         public WindowAccentCompositor(nint windowHandle, bool isAcrylic = false)
         {
             _handle = windowHandle;
@@ -217,6 +210,26 @@ public abstract class FormBase : Form
             var gradientColor = color.R | (color.G << 8) | (color.B << 16) | (color.A << 24);
             Composite(_handle, gradientColor);
         }
+
+        private readonly bool _isAcrylic;
+        nint _handle;
+        private enum AccentState
+        {
+            ACCENT_DISABLED = 0,
+            ACCENT_ENABLE_GRADIENT,
+            ACCENT_ENABLE_TRANSPARENTGRADIENT,
+            ACCENT_ENABLE_BLURBEHIND,
+            ACCENT_ENABLE_ACRYLICBLURBEHIND,
+            ACCENT_INVALID_STATE
+        }
+
+        private enum WindowCompositionAttribute
+        {
+            WCA_ACCENT_POLICY = 19
+        }
+
+        [DllImport("user32.dll")]
+        private static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
 
         private void Composite(IntPtr handle, int color)
         {
@@ -240,20 +253,6 @@ public abstract class FormBase : Form
                 Marshal.FreeHGlobal(accentPtr);
             }
         }
-
-        [DllImport("user32.dll")]
-        private static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
-
-        private enum AccentState
-        {
-            ACCENT_DISABLED = 0,
-            ACCENT_ENABLE_GRADIENT,
-            ACCENT_ENABLE_TRANSPARENTGRADIENT,
-            ACCENT_ENABLE_BLURBEHIND,
-            ACCENT_ENABLE_ACRYLICBLURBEHIND,
-            ACCENT_INVALID_STATE
-        }
-
         [StructLayout(LayoutKind.Sequential)]
         private struct AccentPolicy
         {
@@ -270,34 +269,16 @@ public abstract class FormBase : Form
             public IntPtr Data;
             public int SizeOfData;
         }
-
-        private enum WindowCompositionAttribute
-        {
-            WCA_ACCENT_POLICY = 19
-        }
     }
     #endregion
 
-    const WINDOW_STYLE WINDOWED_STYLE = WINDOW_STYLE.WS_OVERLAPPEDWINDOW;
-    const WINDOW_STYLE BORDERLESS_STYLE = WINDOW_STYLE.WS_OVERLAPPED | WINDOW_STYLE.WS_THICKFRAME | WINDOW_STYLE.WS_CAPTION | WINDOW_STYLE.WS_SYSMENU | WINDOW_STYLE.WS_MINIMIZEBOX | WINDOW_STYLE.WS_MAXIMIZEBOX;
-    const WINDOW_STYLE FULL_SCREEN_STYLE = WINDOW_STYLE.WS_POPUP | WINDOW_STYLE.WS_SYSMENU | WINDOW_STYLE.WS_MINIMIZEBOX;
-    const WINDOW_STYLE POPUP_STYLE = WINDOW_STYLE.WS_POPUP | WINDOW_STYLE.WS_SYSMENU | WINDOW_STYLE.WS_MINIMIZEBOX | WINDOW_STYLE.WS_MAXIMIZEBOX;
+    public FormBase()
+    {
+        InitializeComponent();
 
-    internal HWND hWnd => (HWND)Handle;
+        _windowBorderResizer = new WebView2BorderlessResizer() { Visible = false };
 
-    private bool _resizable = true;
-
-    private bool _shadowDecorated = true;
-
-    private bool _isPopup = false;
-
-    private bool _fullscreen = false;
-
-    private bool _extendsContentIntoTitleBar = false;
-
-    private bool _systemMenu = true;
-
-    private WebView2BorderlessResizer _windowBorderResizer;
+    }
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public bool Popup
@@ -328,6 +309,7 @@ public abstract class FormBase : Form
             }
         }
     }
+
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public bool Resizable
     {
@@ -342,6 +324,7 @@ public abstract class FormBase : Form
             }
         }
     }
+
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public bool SystemMenu
     {
@@ -356,6 +339,7 @@ public abstract class FormBase : Form
             }
         }
     }
+
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public bool ShadowDecorated
     {
@@ -370,6 +354,7 @@ public abstract class FormBase : Form
             }
         }
     }
+
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public bool Fullscreen
     {
@@ -386,7 +371,6 @@ public abstract class FormBase : Form
         }
     }
 
-    private Color? _backColor = null;
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public new Color BackColor
     {
@@ -411,6 +395,7 @@ public abstract class FormBase : Form
 
         }
     }
+
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public Padding WindowEdgeOffsets
     {
@@ -418,28 +403,33 @@ public abstract class FormBase : Form
         set => _windowBorderResizer.BorderOffset = value;
     }
 
-    public FormBase()
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    public SystemBackdropType SystemBackdropType
     {
-        InitializeComponent();
+        get => _systemBackdropType;
+        set
+        {
+            if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763) && value >= SystemBackdropType.Manual)
+            {
+                return;
+            }
+            else if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22621) && value > SystemBackdropType.Acrylic)
+            {
+                return;
+            }
 
-        _windowBorderResizer = new WebView2BorderlessResizer() { Visible = false };
+            if (value == _systemBackdropType) return;
 
+            if (IsHandleCreated)
+            {
+                HandleSystemBackdropTypeChanged(value);
+            }
+            else
+            {
+                _systemBackdropType = value;
+            }
+        }
     }
-
-    private void InitializeComponent()
-    {
-        this.SuspendLayout();
-        // 
-        // BrowserHostForm
-        // 
-        this.ClientSize = new System.Drawing.Size(960, 640);
-        this.Name = "WinFormedgeForm";
-        this.Text = "WinFormedge";
-        this.AutoScaleMode = AutoScaleMode.Dpi;
-        this.BackColor = Color.Transparent;
-        this.ResumeLayout(false);
-    }
-
 
     public new void Show(IWin32Window? owner)
     {
@@ -455,6 +445,266 @@ public abstract class FormBase : Form
         return base.ShowDialog(owner);
     }
 
+    internal HWND hWnd => (HWND)Handle;
+    internal uint HitTestNCA(nint lParam)
+    {
+        var cursor = MARCOS.ToPoint(lParam);
+
+        var border = new Point(GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXFRAME) + GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXPADDEDBORDER), GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CYFRAME) + GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXPADDEDBORDER));
+
+        if (!GetWindowRect((HWND)Handle, out var windowRect))
+        {
+            return HTNOWHERE;
+        }
+
+        var result =
+            (byte)HitTestNCARegionMask.left * (cursor.X < (windowRect.left + border.X) ? 1 : 0) |
+            (byte)HitTestNCARegionMask.right * (cursor.X >= (windowRect.right - border.X) ? 1 : 0) |
+            (byte)HitTestNCARegionMask.top * (cursor.Y < (windowRect.top + border.Y) ? 1 : 0) |
+            (byte)HitTestNCARegionMask.bottom * (cursor.Y >= (windowRect.bottom - border.Y) ? 1 : 0);
+
+        return result switch
+        {
+            (byte)HitTestNCARegionMask.left => Resizable ? HTLEFT : HTCLIENT,
+            (byte)HitTestNCARegionMask.right => Resizable ? HTRIGHT : HTCLIENT,
+            (byte)HitTestNCARegionMask.top => Resizable ? HTTOP : HTCLIENT,
+            (byte)HitTestNCARegionMask.bottom => Resizable ? HTBOTTOM : HTCLIENT,
+            (byte)(HitTestNCARegionMask.top | HitTestNCARegionMask.left) => Resizable ? HTTOPLEFT : HTCLIENT,
+            (byte)(HitTestNCARegionMask.top | HitTestNCARegionMask.right) => Resizable ? HTTOPRIGHT : HTCLIENT,
+            (byte)(HitTestNCARegionMask.bottom | HitTestNCARegionMask.left) => Resizable ? HTBOTTOMLEFT : HTCLIENT,
+            (byte)(HitTestNCARegionMask.bottom | HitTestNCARegionMask.right) => Resizable ? HTBOTTOMRIGHT : HTCLIENT,
+            (byte)HitTestNCARegionMask.client => HTCLIENT,
+            _ => HTNOWHERE,
+        };
+    }
+
+    internal protected Padding GetNonClientMetrics()
+    {
+        var rect = new RECT();
+
+        var screenRect = ClientRectangle;
+
+        screenRect.Offset(-Bounds.Left, -Bounds.Top);
+
+        rect.top = screenRect.Top;
+        rect.left = screenRect.Left;
+        rect.bottom = screenRect.Bottom;
+        rect.right = screenRect.Right;
+
+        AdjustWindowRect(ref rect, (WINDOW_STYLE)CreateParams.Style, (WINDOW_EX_STYLE)CreateParams.ExStyle);
+
+        return new Padding
+        {
+            Top = screenRect.Top - rect.top,
+            Left = screenRect.Left - rect.left,
+            Bottom = rect.bottom - screenRect.Bottom,
+            Right = rect.right - screenRect.Right
+        };
+    }
+
+    protected override CreateParams CreateParams
+    {
+        get
+        {
+            var cp = base.CreateParams;
+
+            cp.Style = (int)GetWindowStyle();
+
+            //cp.ClassStyle |= (int)(WNDCLASS_STYLES.CS_HREDRAW | WNDCLASS_STYLES.CS_VREDRAW);
+
+            switch (SystemBackdropType)
+            {
+                case SystemBackdropType.None:
+                case SystemBackdropType.BlurBehind:
+                case SystemBackdropType.Manual:
+                case SystemBackdropType.Acrylic:
+                case SystemBackdropType.Mica:
+                case SystemBackdropType.Transient:
+                case SystemBackdropType.MicaAlt:
+                    cp.ExStyle |= (int)WINDOW_EX_STYLE.WS_EX_NOREDIRECTIONBITMAP;
+                    break;
+                default:
+                    break;
+            }
+            return cp;
+        }
+    }
+
+    protected override void CreateHandle()
+    {
+        base.CreateHandle();
+
+        HandleWindowStyleChanged();
+
+        HandleSystemBackdropTypeChanged(SystemBackdropType);
+
+        if (!RecreatingHandle)
+        {
+            CorrectWindowPos();
+        }
+
+        HandleFullScreen(Fullscreen);
+
+    }
+
+    protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
+    {
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
+        {
+            base.SetBoundsCore(x, y, width, height, specified);
+            return;
+        }
+
+        //Console.WriteLine($"SetBoundsCore: {x}, {y}, {width}, {height}, {specified} should patch:{_shouldPatchBoundsSize}");
+
+        if (ExtendsContentIntoTitleBar && _shouldPatchBoundsSize && ((specified & BoundsSpecified.Size) != BoundsSpecified.None) && WindowState == FormWindowState.Normal)
+        {
+            if (ClientSize.Width != width || ClientSize.Height != height)
+            {
+                var padding = GetNonClientMetrics();
+                width = width - padding.Horizontal;
+                height = height - padding.Vertical;
+
+                //Console.WriteLine($"SetBoundsCore[PATCHED]: {x}, {y}, {width}, {height}, {specified}");
+            }
+        }
+
+
+
+        base.SetBoundsCore(x, y, width, height, specified);
+    }
+
+    protected override void DestroyHandle()
+    {
+        base.DestroyHandle();
+
+        _shouldPatchBoundsSize = false;
+    }
+
+    protected override void WndProc(ref Message m)
+    {
+        var msg = (uint)m.Msg;
+        var wParam = m.WParam;
+        var lParam = m.LParam;
+        switch (msg)
+        {
+            case WM_NCCREATE when OperatingSystem.IsWindowsVersionAtLeast(10, 0, 14393):
+                {
+                    EnableNonClientDpiScaling((HWND)m.HWnd);
+                    if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
+                    {
+                        unsafe
+                        {
+                            BOOL useHostBackdropBrush = true;
+                            DwmSetWindowAttribute((HWND)Handle, DWMWINDOWATTRIBUTE.DWMWA_USE_HOSTBACKDROPBRUSH, &useHostBackdropBrush, (uint)sizeof(BOOL));
+
+
+                        }
+
+                    }
+                }
+                break;
+            case WM_NCCALCSIZE when wParam == 1 && ExtendsContentIntoTitleBar && !Popup && !Fullscreen:
+                {
+                    var nccalc = Marshal.PtrToStructure<NCCALCSIZE_PARAMS>(lParam);
+
+                    if (!AdjustMaximizedClientRect((HWND)m.HWnd, ref nccalc.rgrc._0))
+                    {
+                        //OnNcResize(nccalc.rgrc._0.Width, nccalc.rgrc._0.Height);
+                    }
+
+                    Marshal.StructureToPtr(nccalc, m.LParam, false);
+                }
+                return;
+            case WM_NCCALCSIZE when wParam == 0 && !OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000):
+                {
+                    //var rect = Marshal.PtrToStructure<RECT>(lParam);
+                    //var r = System.Drawing.Rectangle.FromLTRB(rect.left, rect.top, rect.right, rect.bottom);
+
+                    //Console.WriteLine(r);
+
+                    _shouldPatchBoundsSize = true;
+
+                }
+                break;
+                //case WM_NCHITTEST:
+                //    {
+                //        if (Popup || ExtendsContentIntoTitleBar)
+                //        {
+                //            m.Result = (nint)HitTestNCA(lParam);
+                //            return;
+                //        }
+                //    }
+                //    break;
+
+        }
+        //var handled = OnWindowProc?.Invoke(ref m) ?? false;
+
+        //if (handled) return;
+
+        base.WndProc(ref m);
+    }
+
+    protected override void DefWndProc(ref Message m)
+    {
+        //var handled = OnDefWindowProc?.Invoke(ref m) ?? false;
+
+        //if (handled) return;
+
+        base.DefWndProc(ref m);
+    }
+
+    const WINDOW_STYLE WINDOWED_STYLE = WINDOW_STYLE.WS_OVERLAPPEDWINDOW;
+    const WINDOW_STYLE BORDERLESS_STYLE = WINDOW_STYLE.WS_OVERLAPPED | WINDOW_STYLE.WS_THICKFRAME | WINDOW_STYLE.WS_CAPTION | WINDOW_STYLE.WS_SYSMENU | WINDOW_STYLE.WS_MINIMIZEBOX | WINDOW_STYLE.WS_MAXIMIZEBOX;
+    const WINDOW_STYLE FULL_SCREEN_STYLE = WINDOW_STYLE.WS_POPUP | WINDOW_STYLE.WS_SYSMENU | WINDOW_STYLE.WS_MINIMIZEBOX;
+    const WINDOW_STYLE POPUP_STYLE = WINDOW_STYLE.WS_POPUP | WINDOW_STYLE.WS_SYSMENU | WINDOW_STYLE.WS_MINIMIZEBOX | WINDOW_STYLE.WS_MAXIMIZEBOX;
+    private bool _resizable = true;
+
+    private bool _shadowDecorated = true;
+
+    private bool _isPopup = false;
+
+    private bool _fullscreen = false;
+
+    private bool _extendsContentIntoTitleBar = false;
+
+    private bool _systemMenu = true;
+
+    private WebView2BorderlessResizer _windowBorderResizer;
+    private Color? _backColor = null;
+    private MARGINS[] SHADOW_DECORATORS = [
+            new MARGINS(){ cxLeftWidth = 0, cxRightWidth = 0, cyTopHeight = 0, cyBottomHeight = 0 },
+            new MARGINS(){ cxLeftWidth = 0, cxRightWidth = 0, cyTopHeight = 1, cyBottomHeight = 0 }
+        ];
+
+    private WINDOWPLACEMENT _wpPrev;
+
+    bool _shouldPatchBoundsSize = false;
+
+    SystemBackdropType _systemBackdropType = SystemBackdropType.Auto;
+
+    private enum HitTestNCARegionMask : byte
+    {
+        client = 0b0000,
+        left = 0b0001,
+        right = 0b0010,
+        top = 0b0100,
+        bottom = 0b1000,
+    }
+
+    private void InitializeComponent()
+    {
+        this.SuspendLayout();
+        // 
+        // BrowserHostForm
+        // 
+        this.ClientSize = new System.Drawing.Size(960, 640);
+        this.Name = "WinFormedgeForm";
+        this.Text = "WinFormedge";
+        this.AutoScaleMode = AutoScaleMode.Dpi;
+        this.BackColor = Color.Transparent;
+        this.ResumeLayout(false);
+    }
     private void AssignOwnerFromHandle(IWin32Window? owner)
     {
         if (owner is not null)
@@ -529,13 +779,6 @@ public abstract class FormBase : Form
 
         }
     }
-
-
-    private MARGINS[] SHADOW_DECORATORS = [
-            new MARGINS(){ cxLeftWidth = 0, cxRightWidth = 0, cyTopHeight = 0, cyBottomHeight = 0 },
-            new MARGINS(){ cxLeftWidth = 0, cxRightWidth = 0, cyTopHeight = 1, cyBottomHeight = 0 }
-        ];
-
     private void HandleWindowStyleChanged()
     {
         if (!IsHandleCreated) return;
@@ -570,8 +813,6 @@ public abstract class FormBase : Form
 
         PerformResizerVisiblity();
     }
-
-    private WINDOWPLACEMENT _wpPrev;
     private void HandleFullScreen(bool fullScreen)
     {
         if (!IsHandleCreated) return;
@@ -675,150 +916,6 @@ public abstract class FormBase : Form
 
         return style;
     }
-
-    private enum HitTestNCARegionMask : byte
-    {
-        client = 0b0000,
-        left = 0b0001,
-        right = 0b0010,
-        top = 0b0100,
-        bottom = 0b1000,
-    }
-
-
-    internal uint HitTestNCA(nint lParam)
-    {
-        var cursor = MARCOS.ToPoint(lParam);
-
-        var border = new Point(GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXFRAME) + GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXPADDEDBORDER), GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CYFRAME) + GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXPADDEDBORDER));
-
-        if (!GetWindowRect((HWND)Handle, out var windowRect))
-        {
-            return HTNOWHERE;
-        }
-
-        var result =
-            (byte)HitTestNCARegionMask.left * (cursor.X < (windowRect.left + border.X) ? 1 : 0) |
-            (byte)HitTestNCARegionMask.right * (cursor.X >= (windowRect.right - border.X) ? 1 : 0) |
-            (byte)HitTestNCARegionMask.top * (cursor.Y < (windowRect.top + border.Y) ? 1 : 0) |
-            (byte)HitTestNCARegionMask.bottom * (cursor.Y >= (windowRect.bottom - border.Y) ? 1 : 0);
-
-        return result switch
-        {
-            (byte)HitTestNCARegionMask.left => Resizable ? HTLEFT : HTCLIENT,
-            (byte)HitTestNCARegionMask.right => Resizable ? HTRIGHT : HTCLIENT,
-            (byte)HitTestNCARegionMask.top => Resizable ? HTTOP : HTCLIENT,
-            (byte)HitTestNCARegionMask.bottom => Resizable ? HTBOTTOM : HTCLIENT,
-            (byte)(HitTestNCARegionMask.top | HitTestNCARegionMask.left) => Resizable ? HTTOPLEFT : HTCLIENT,
-            (byte)(HitTestNCARegionMask.top | HitTestNCARegionMask.right) => Resizable ? HTTOPRIGHT : HTCLIENT,
-            (byte)(HitTestNCARegionMask.bottom | HitTestNCARegionMask.left) => Resizable ? HTBOTTOMLEFT : HTCLIENT,
-            (byte)(HitTestNCARegionMask.bottom | HitTestNCARegionMask.right) => Resizable ? HTBOTTOMRIGHT : HTCLIENT,
-            (byte)HitTestNCARegionMask.client => HTCLIENT,
-            _ => HTNOWHERE,
-        };
-    }
-
-
-    protected override void CreateHandle()
-    {
-        base.CreateHandle();
-
-        HandleWindowStyleChanged();
-
-        HandleSystemBackdropTypeChanged(SystemBackdropType);
-
-        if (!RecreatingHandle)
-        {
-            CorrectWindowPos();
-        }
-
-        HandleFullScreen(Fullscreen);
-
-    }
-
-    protected override CreateParams CreateParams
-    {
-        get
-        {
-            var cp = base.CreateParams;
-
-            cp.Style = (int)GetWindowStyle();
-
-            //cp.ClassStyle |= (int)(WNDCLASS_STYLES.CS_HREDRAW | WNDCLASS_STYLES.CS_VREDRAW);
-
-            switch (SystemBackdropType)
-            {
-                case SystemBackdropType.None:
-                case SystemBackdropType.BlurBehind:
-                case SystemBackdropType.Manual:
-                case SystemBackdropType.Acrylic:
-                case SystemBackdropType.Mica:
-                case SystemBackdropType.Transient:
-                case SystemBackdropType.MicaAlt:
-                    cp.ExStyle |= (int)WINDOW_EX_STYLE.WS_EX_NOREDIRECTIONBITMAP;
-                    break;
-                default:
-                    break;
-            }
-            return cp;
-        }
-    }
-
-
-
-    protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
-    {
-        if(OperatingSystem.IsWindowsVersionAtLeast(10,0,22000))
-        {
-            base.SetBoundsCore(x, y, width, height, specified);
-            return;
-        }
-
-        //Console.WriteLine($"SetBoundsCore: {x}, {y}, {width}, {height}, {specified} should patch:{_shouldPatchBoundsSize}");
-
-        if(ExtendsContentIntoTitleBar && _shouldPatchBoundsSize && ((specified & BoundsSpecified.Size) != BoundsSpecified.None) && WindowState == FormWindowState.Normal)
-        {
-            if(ClientSize.Width != width || ClientSize.Height != height)
-            {
-                var padding = GetNonClientMetrics();
-                width = width - padding.Horizontal;
-                height = height - padding.Vertical;
-
-                //Console.WriteLine($"SetBoundsCore[PATCHED]: {x}, {y}, {width}, {height}, {specified}");
-            }
-        }
-
-        
-
-        base.SetBoundsCore(x, y, width, height, specified);
-    }
-
-
-
-    internal protected Padding GetNonClientMetrics()
-    {
-        var rect = new RECT();
-
-        var screenRect = ClientRectangle;
-
-        screenRect.Offset(-Bounds.Left, -Bounds.Top);
-
-        rect.top = screenRect.Top;
-        rect.left = screenRect.Left;
-        rect.bottom = screenRect.Bottom;
-        rect.right = screenRect.Right;
-
-        AdjustWindowRect(ref rect, (WINDOW_STYLE)CreateParams.Style, (WINDOW_EX_STYLE)CreateParams.ExStyle);
-
-        return new Padding
-        {
-            Top = screenRect.Top - rect.top,
-            Left = screenRect.Left - rect.left,
-            Bottom = rect.bottom - screenRect.Bottom,
-            Right = rect.right - screenRect.Right
-        };
-    }
-
     private void AdjustWindowRect(ref RECT rect, WINDOW_STYLE style, WINDOW_EX_STYLE exStyle)
     {
         if (DeviceDpi != 96 && OperatingSystem.IsWindowsVersionAtLeast(10, 0, 14393))
@@ -831,89 +928,6 @@ public abstract class FormBase : Form
         }
 
     }
-
-    bool _shouldPatchBoundsSize = false;
-
-    protected override void DestroyHandle()
-    {
-        base.DestroyHandle();
-
-        _shouldPatchBoundsSize = false;
-    }
-
-    protected override void WndProc(ref Message m)
-    {
-        var msg = (uint)m.Msg;
-        var wParam = m.WParam;
-        var lParam = m.LParam;
-        switch (msg)
-        {
-            case WM_NCCREATE when OperatingSystem.IsWindowsVersionAtLeast(10, 0, 14393):
-                {
-                    EnableNonClientDpiScaling((HWND)m.HWnd);
-                    if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
-                    {
-                        unsafe
-                        {
-                            BOOL useHostBackdropBrush = true;
-                            DwmSetWindowAttribute((HWND)Handle, DWMWINDOWATTRIBUTE.DWMWA_USE_HOSTBACKDROPBRUSH, &useHostBackdropBrush, (uint)sizeof(BOOL));
-
-
-                        }
-
-                    }
-                }
-                break;
-            case WM_NCCALCSIZE when wParam == 1 && ExtendsContentIntoTitleBar && !Popup && !Fullscreen:
-                {
-                    var nccalc = Marshal.PtrToStructure<NCCALCSIZE_PARAMS>(lParam);
-
-                    if (!AdjustMaximizedClientRect((HWND)m.HWnd, ref nccalc.rgrc._0))
-                    {
-                        //OnNcResize(nccalc.rgrc._0.Width, nccalc.rgrc._0.Height);
-                    }
-
-                    Marshal.StructureToPtr(nccalc, m.LParam, false);
-                }
-                return;
-            case WM_NCCALCSIZE when wParam == 0 && !OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000):
-                {
-                    //var rect = Marshal.PtrToStructure<RECT>(lParam);
-                    //var r = System.Drawing.Rectangle.FromLTRB(rect.left, rect.top, rect.right, rect.bottom);
-
-                    //Console.WriteLine(r);
-
-                    _shouldPatchBoundsSize = true;
-
-                }
-                break;
-                //case WM_NCHITTEST:
-                //    {
-                //        if (Popup || ExtendsContentIntoTitleBar)
-                //        {
-                //            m.Result = (nint)HitTestNCA(lParam);
-                //            return;
-                //        }
-                //    }
-                //    break;
-
-        }
-        //var handled = OnWindowProc?.Invoke(ref m) ?? false;
-
-        //if (handled) return;
-
-        base.WndProc(ref m);
-    }
-
-    protected override void DefWndProc(ref Message m)
-    {
-        //var handled = OnDefWindowProc?.Invoke(ref m) ?? false;
-
-        //if (handled) return;
-
-        base.DefWndProc(ref m);
-    }
-
     //[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     //internal WindowProc? OnWindowProc { get; set; }
 
@@ -922,36 +936,6 @@ public abstract class FormBase : Form
 
     //public new void CenterToParent() => base.CenterToParent();
     //public new void CenterToScreen() => base.CenterToScreen();
-
-    SystemBackdropType _systemBackdropType = SystemBackdropType.Auto;
-    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public SystemBackdropType SystemBackdropType
-    {
-        get => _systemBackdropType;
-        set
-        {
-            if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763) && value >= SystemBackdropType.Manual)
-            {
-                return;
-            }
-            else if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22621) && value > SystemBackdropType.Acrylic)
-            {
-                return;
-            }
-
-            if (value == _systemBackdropType) return;
-
-            if (IsHandleCreated)
-            {
-                HandleSystemBackdropTypeChanged(value);
-            }
-            else
-            {
-                _systemBackdropType = value;
-            }
-        }
-    }
-
     private void HandleSystemBackdropTypeChanged(SystemBackdropType value)
     {
         if (!IsHandleCreated)

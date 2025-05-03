@@ -1,8 +1,8 @@
-[
+﻿[
   {
-    "outputFileName": "formedge.min.js",
+    "outputFileName": "Resources/formedge.min.js",
     "inputFiles": [
-      "formedge.js"
+      "Resources/formedge.js"
     ]
   }
 ]

@@ -61,6 +61,7 @@ public partial class Formedge : IWin32Window
     public Size MaximumSize { get => HostWindow.MaximumSize; set => HostWindow.MaximumSize = value; }
     public Size MinimumSize { get => HostWindow.MinimumSize; set => HostWindow.MinimumSize = value; }
     public bool Enabled { get => HostWindow.Enabled; set => HostWindow.Enabled = value; }
+    public FormStartPosition StartPosition { get => HostWindow.StartPosition; set => HostWindow.StartPosition = value; }
     public FormWindowState WindowState
     {
         get => HostWindow.WindowState;

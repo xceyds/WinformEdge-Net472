@@ -32,7 +32,7 @@ public partial class Formedge
     public bool AllowDeveloperTools { get; set; } = true;
 
 
-    private Color _defaultBackgroundColor = Color.Transparent;
+    private Color _defaultBackgroundColor = FormedgeApp.Current.IsDarkMode ? Color.DimGray : Color.White;
     internal protected Color BackColor
     {
         get => _defaultBackgroundColor;
@@ -50,6 +50,8 @@ public partial class Formedge
             HostWindow.BackColor = colorWithoutAlpha;
         }
     }
+
+    internal Color SolidBackColor => Color.FromArgb(255, BackColor.R, BackColor.G, BackColor.B);
 
     /// <inheritdoc />
     internal protected double ZoomFactor

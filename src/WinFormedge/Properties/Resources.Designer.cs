@@ -61,7 +61,7 @@ namespace WinFormedge.Properties {
         }
         
         /// <summary>
-        ///   查找类似 (function(){function r(n){window.chrome?.webview?.postMessage?window.chrome.webview.postMessage(n):console.error(&quot;[window.chrome.webview.postMessage] is not supported in this environment.&quot;)}function n(n,t){window.dispatchEvent(new Event(n,{detail:t}))}function u(t){const{state:i}=t;if(i){n(&quot;windowstatechange&quot;,{state:i});const r=document.querySelector(&quot;html&quot;);r?.classList.toggle(&quot;window-maximized&quot;,i===&quot;maximized&quot;);r?.classList.toggle(&quot;window-minimized&quot;,i===&quot;minimized&quot;);r?.classList.toggle(&quot;window-fullscreen&quot; [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        ///   查找类似 (function(n){function i(t){n.chrome?.webview?.postMessage&amp;&amp;t.message?n.chrome.webview.postMessage(t):console.error(&quot;[window.chrome.webview.postMessage] is not supported in this environment.&quot;)}function r(t,i){n.dispatchEvent(new Event(t,{detail:i}))}function c(){console.log(&quot;==== Welcome to The%c WinFormege %cProject ====&quot;,&quot;color: #fff;font-weight:bold;font-size:1.1em;text-shadow: #152173 0 0 3px;&quot;,&quot;&quot;);const n=&quot;font-size:0.8em;background: #35495e; padding: 4px; border-radius: 5px 0 0 5px; color: #fff&quot;,t=&quot;fon [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string Formedge {
             get {

@@ -9,6 +9,10 @@ internal class FeaturesWindow : Formedge
 {
     public FeaturesWindow()
     {
+        MinimumSize = new Size(960, 480);
+        Size = new Size(1280, 800);
+        AllowFullscreen = true;
+        BackColor = Color.Transparent;
 
         Load += MyWindow_Load;
         DOMContentLoaded += MyWindow_DOMContentLoaded;
@@ -21,18 +25,16 @@ internal class FeaturesWindow : Formedge
         });
 
         Url = "https://embedded.appresource.local";
+
     }
 
-    protected override WindowSettings ConfigureHostWindowSettings(HostWindowBuilder opts)
+    protected override WindowSettings ConfigureWindowSettings(HostWindowBuilder opts)
     {
         var win = opts.UseDefaultWindow();
 
         win.ExtendsContentIntoTitleBar = true;
-        win.MinimumSize = new Size(960, 480);
-        win.Size = new Size(1280, 800);
         win.SystemBackdropType = SystemBackdropType.BlurBehind;
-        win.AllowFullScreen = true;
-
+        
         return win;
     }
 

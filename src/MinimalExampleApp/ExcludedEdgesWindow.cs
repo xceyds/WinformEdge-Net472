@@ -8,6 +8,11 @@ internal class ExcludedEdgesWindow : Formedge
 {
     public ExcludedEdgesWindow()
     {
+        MinimumSize = new Size(800, 480);
+        Size = new Size(960, 640);
+        StartPosition = FormStartPosition.CenterScreen;
+        BackColor = Color.Transparent;
+
         Load += ExcludedEdgesWindow_Load;
 
         SetVirtualHostNameToEmbeddedResourcesMapping(new EmbeddedFileResourceOptions
@@ -40,17 +45,15 @@ internal class ExcludedEdgesWindow : Formedge
         }
     }
 
-    protected override WindowSettings ConfigureHostWindowSettings(HostWindowBuilder opts)
+    protected override WindowSettings ConfigureWindowSettings(HostWindowBuilder opts)
     {
         var win = opts.UseDefaultWindow();
 
         win.ExtendsContentIntoTitleBar = true;
         win.SystemBackdropType = SystemBackdropType.Manual;
         win.ShowWindowDecorators = false;
-        win.MinimumSize = new Size(800, 480);
-        win.Size = new Size(960, 640);
         win.WindowEdgeOffsets = new Padding(13, 8, 21, 25);
-        win.StartPosition = FormStartPosition.CenterScreen;
+
 
         return win;
     }

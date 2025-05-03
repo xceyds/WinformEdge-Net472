@@ -26,40 +26,40 @@ internal class DefaultWindow : FormBase
         ShadowDecorated = settings.ShowWindowDecorators;
         WindowEdgeOffsets = settings.WindowEdgeOffsets;
 
-        if (!settings.Size.IsEmpty)
-        {
-            Size = settings.Size;
-        }
+        //if (!settings.Size.IsEmpty)
+        //{
+        //    Size = settings.Size;
+        //}
 
-        if (!settings.IsLocationSet)
-        {
-            Location = settings.Location;
-        }
+        //if (!settings.IsLocationSet)
+        //{
+        //    Location = settings.Location;
+        //}
 
-        if (settings.MaximumSize is not null)
-        {
-            MaximumSize = settings.MaximumSize.Value;
-        }
+        //if (settings.MaximumSize is not null)
+        //{
+        //    MaximumSize = settings.MaximumSize.Value;
+        //}
 
-        if (settings.MinimumSize is not null)
-        {
-            MinimumSize = settings.MinimumSize.Value;
-        }
+        //if (settings.MinimumSize is not null)
+        //{
+        //    MinimumSize = settings.MinimumSize.Value;
+        //}
 
-        if (settings.Icon is not null)
-        {
-            Icon = settings.Icon;
-        }
-
-        Resizable = settings.Resizable;
-        MaximizeBox = settings.Maximizable;
-        MinimizeBox = settings.Minimizable;
-        TopMost = settings.TopMost;
-        WindowState = settings.WindowState;
-        Enabled = settings.Enabled;
-        ShowInTaskbar = settings.ShowInTaskbar;
-        BackColor = settings.SolidBackColor;
-        StartPosition= settings.StartPosition;
+        //if (settings.Icon is not null)
+        //{
+        //    Icon = settings.Icon;
+        //}
+        //Text = settings.WindowCaption;
+        //Resizable = settings.Resizable;
+        //MaximizeBox = settings.Maximizable;
+        //MinimizeBox = settings.Minimizable;
+        //TopMost = settings.TopMost;
+        //WindowState = settings.WindowState;
+        //Enabled = settings.Enabled;
+        //ShowInTaskbar = settings.ShowInTaskbar;
+        //BackColor = settings.SolidBackColor;
+        //StartPosition= settings.StartPosition;
     }
 
     protected override void WndProc(ref Message m)
