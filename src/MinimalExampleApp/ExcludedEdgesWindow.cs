@@ -22,7 +22,7 @@ internal class ExcludedEdgesWindow : Formedge
 
         WebMessageReceived += ExcludedEdgesWindow_WebMessageReceived;
 
-        AllowDeveloperTools = false;
+        //AllowDeveloperTools = false;
     }
 
     private void ExcludedEdgesWindow_WebMessageReceived(object? sender, Microsoft.Web.WebView2.Core.CoreWebView2WebMessageReceivedEventArgs e)
