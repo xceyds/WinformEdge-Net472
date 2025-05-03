@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Reflection;
 
 namespace WinFormedge.HostForms;
 
@@ -22,8 +24,9 @@ public abstract class FormBase : Form
         }
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Padding BorderOffset { 
-            get=> _borders; 
+        public Padding BorderOffset
+        {
+            get => _borders;
             set
             {
                 if (_borders == value) return;
@@ -78,7 +81,7 @@ public abstract class FormBase : Form
             var windowRect = new Region(ClientRectangle);
 
 
-            if(BorderOffset.All != 0)
+            if (BorderOffset.All != 0)
             {
                 var borderRect = new Rectangle(ClientRectangle.Left + DpiScaledBorderOffset.Left, ClientRectangle.Top + DpiScaledBorderOffset.Top, ClientRectangle.Width - DpiScaledBorderOffset.Horizontal, ClientRectangle.Height - DpiScaledBorderOffset.Vertical);
 
@@ -112,11 +115,12 @@ public abstract class FormBase : Form
                     {
                         var region = HitTestNCA(m.LParam);
 
-                        if (region == HTNOWHERE || region == HTCLIENT) {
+                        if (region == HTNOWHERE || region == HTCLIENT)
+                        {
                             Cursor = Cursors.Default;
                             break;
                         }
-                        
+
 
                         switch (region)
                         {
@@ -173,7 +177,7 @@ public abstract class FormBase : Form
 
             var result =
                 (byte)HitTestNCARegionMask.left * (cursor.X >= (windowRect.left + DpiScaledBorderOffset.Left) && cursor.X < (windowRect.left + border.X + DpiScaledBorderOffset.Left) ? 1 : 0) |
-                (byte)HitTestNCARegionMask.right * (cursor.X >= (windowRect.right - border.X - DpiScaledBorderOffset.Right) && cursor.X<= (windowRect.right - DpiScaledBorderOffset.Right ) ? 1 : 0) |
+                (byte)HitTestNCARegionMask.right * (cursor.X >= (windowRect.right - border.X - DpiScaledBorderOffset.Right) && cursor.X <= (windowRect.right - DpiScaledBorderOffset.Right) ? 1 : 0) |
                 (byte)HitTestNCARegionMask.top * (cursor.Y >= (windowRect.top + DpiScaledBorderOffset.Top) && cursor.Y < (windowRect.top + border.Y + DpiScaledBorderOffset.Top) ? 1 : 0) |
                 (byte)HitTestNCARegionMask.bottom * (cursor.Y >= (windowRect.bottom - border.Y - DpiScaledBorderOffset.Bottom) && cursor.Y <= (windowRect.bottom - DpiScaledBorderOffset.Bottom) ? 1 : 0);
 
@@ -394,7 +398,7 @@ public abstract class FormBase : Form
                 _backColor = null;
                 base.BackColor = Color.White;
             }
-            else if(value.A != 255)
+            else if (value.A != 255)
             {
                 _backColor = value;
                 base.BackColor = Color.FromArgb(255, value.R, value.G, value.B);
@@ -761,6 +765,82 @@ public abstract class FormBase : Form
     }
 
 
+
+    protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
+    {
+        if(OperatingSystem.IsWindowsVersionAtLeast(10,0,22000))
+        {
+            base.SetBoundsCore(x, y, width, height, specified);
+            return;
+        }
+
+        //Console.WriteLine($"SetBoundsCore: {x}, {y}, {width}, {height}, {specified} should patch:{_shouldPatchBoundsSize}");
+
+        if(ExtendsContentIntoTitleBar && _shouldPatchBoundsSize && ((specified & BoundsSpecified.Size) != BoundsSpecified.None) && WindowState == FormWindowState.Normal)
+        {
+            if(ClientSize.Width != width || ClientSize.Height != height)
+            {
+                var padding = GetNonClientMetrics();
+                width = width - padding.Horizontal;
+                height = height - padding.Vertical;
+
+                //Console.WriteLine($"SetBoundsCore[PATCHED]: {x}, {y}, {width}, {height}, {specified}");
+            }
+        }
+
+        
+
+        base.SetBoundsCore(x, y, width, height, specified);
+    }
+
+
+
+    internal protected Padding GetNonClientMetrics()
+    {
+        var rect = new RECT();
+
+        var screenRect = ClientRectangle;
+
+        screenRect.Offset(-Bounds.Left, -Bounds.Top);
+
+        rect.top = screenRect.Top;
+        rect.left = screenRect.Left;
+        rect.bottom = screenRect.Bottom;
+        rect.right = screenRect.Right;
+
+        AdjustWindowRect(ref rect, (WINDOW_STYLE)CreateParams.Style, (WINDOW_EX_STYLE)CreateParams.ExStyle);
+
+        return new Padding
+        {
+            Top = screenRect.Top - rect.top,
+            Left = screenRect.Left - rect.left,
+            Bottom = rect.bottom - screenRect.Bottom,
+            Right = rect.right - screenRect.Right
+        };
+    }
+
+    private void AdjustWindowRect(ref RECT rect, WINDOW_STYLE style, WINDOW_EX_STYLE exStyle)
+    {
+        if (DeviceDpi != 96 && OperatingSystem.IsWindowsVersionAtLeast(10, 0, 14393))
+        {
+            AdjustWindowRectExForDpi(ref rect, style, false, exStyle, (uint)DeviceDpi);
+        }
+        else
+        {
+            AdjustWindowRectEx(ref rect, style, false, exStyle);
+        }
+
+    }
+
+    bool _shouldPatchBoundsSize = false;
+
+    protected override void DestroyHandle()
+    {
+        base.DestroyHandle();
+
+        _shouldPatchBoundsSize = false;
+    }
+
     protected override void WndProc(ref Message m)
     {
         var msg = (uint)m.Msg;
@@ -778,7 +858,7 @@ public abstract class FormBase : Form
                             BOOL useHostBackdropBrush = true;
                             DwmSetWindowAttribute((HWND)Handle, DWMWINDOWATTRIBUTE.DWMWA_USE_HOSTBACKDROPBRUSH, &useHostBackdropBrush, (uint)sizeof(BOOL));
 
-                            
+
                         }
 
                     }
@@ -796,15 +876,26 @@ public abstract class FormBase : Form
                     Marshal.StructureToPtr(nccalc, m.LParam, false);
                 }
                 return;
-            //case WM_NCHITTEST:
-            //    {
-            //        if (Popup || ExtendsContentIntoTitleBar)
-            //        {
-            //            m.Result = (nint)HitTestNCA(lParam);
-            //            return;
-            //        }
-            //    }
-            //    break;
+            case WM_NCCALCSIZE when wParam == 0 && !OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000):
+                {
+                    //var rect = Marshal.PtrToStructure<RECT>(lParam);
+                    //var r = System.Drawing.Rectangle.FromLTRB(rect.left, rect.top, rect.right, rect.bottom);
+
+                    //Console.WriteLine(r);
+
+                    _shouldPatchBoundsSize = true;
+
+                }
+                break;
+                //case WM_NCHITTEST:
+                //    {
+                //        if (Popup || ExtendsContentIntoTitleBar)
+                //        {
+                //            m.Result = (nint)HitTestNCA(lParam);
+                //            return;
+                //        }
+                //    }
+                //    break;
 
         }
         //var handled = OnWindowProc?.Invoke(ref m) ?? false;
