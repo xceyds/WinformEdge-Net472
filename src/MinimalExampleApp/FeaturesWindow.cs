@@ -25,6 +25,7 @@ internal class FeaturesWindow : Formedge
         });
 
         Url = "https://embedded.appresource.local";
+        //Url = "https://cn.bing.com/";
 
     }
 

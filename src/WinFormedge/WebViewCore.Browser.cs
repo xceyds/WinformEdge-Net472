@@ -151,6 +151,12 @@ partial class WebViewCore
 
         WebResourceManager.Initialize(webview);
 
+        var version = typeof(Formedge).Assembly.GetName().Version?.ToString() ?? webview.Environment.BrowserVersionString;
+        var script = Properties.Resources.Version;
+        script = script.Replace("{{WINFORMEDGE_VERSION_INFO}}", $"%cChromium%c{webview.Environment.BrowserVersionString}%c %cFormedge%c{version}%c %cArchitect%c{(IntPtr.Size == 4 ? "x86" : "x64")}%c");
+
+        await webview.AddScriptToExecuteOnDocumentCreatedAsync(script);
+
         WebViewCreated?.Invoke(Container, EventArgs.Empty);
 
         webview.Navigate(_defferedUrl ?? ABOUT_BLANK);

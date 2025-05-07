@@ -1,8 +1,14 @@
-﻿[
+[
   {
     "outputFileName": "Resources/formedge.min.js",
     "inputFiles": [
       "Resources/formedge.js"
+    ]
+  },
+  {
+    "outputFileName": "Resources/version.min.js",
+    "inputFiles": [
+      "Resources/version.js"
     ]
   }
 ]

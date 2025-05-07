@@ -68,5 +68,14 @@ namespace WinFormedge.Properties {
                 return ResourceManager.GetString("Formedge", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   查找类似 (function(){function t(){console.log(&quot;==== Welcome to The%c WinFormege %cProject ====&quot;,&quot;color: #fff;font-weight:bold;font-size:1.1em;text-shadow: #152173 0 0 3px;&quot;,&quot;&quot;);const t=&quot;font-size:0.8em;background: #35495e; padding: 4px; border-radius: 5px 0 0 5px; color: #fff&quot;,i=&quot;font-size:0.8em;background: #83b841; padding: 4px; border-radius: 0 5px 5px 0; color: #fff&quot;;console.log(n,t,i,&quot;&quot;,t,i,&quot;&quot;,t,i,&quot;&quot;);console.log(`Copyrights (C) ${(new Date).getFullYear()} Xuanchen Lin all rights reserved.`)}const n=`{{WINFORMED [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        /// </summary>
+        internal static string Version {
+            get {
+                return ResourceManager.GetString("Version", resourceCulture);
+            }
+        }
     }
 }
