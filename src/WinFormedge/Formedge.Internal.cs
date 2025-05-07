@@ -216,8 +216,8 @@ public abstract partial class Formedge
 
         var version = typeof(Formedge).Assembly.GetName().Version?.ToString() ?? webview.Environment.BrowserVersionString;
 
+
         script = script.Replace("{{FORMEDGE_MESSAGE_PASSCODE}}", FORMEDGE_MESSAGE_PASSCODE);
-        script = script.Replace("{{WINFORMEDGE_VERSION_INFO}}", $"%cChromium%c{webview.Environment.BrowserVersionString}%c %cFormedge%c{version}%c %cArchitect%c{(IntPtr.Size == 4 ? "x86" : "x64")}%c");
         script = script.Replace("{{WINFORMEDGE_VERSION}}", version);
         script = script.Replace("{{HAS_TITLE_BAR}}", HasSystemTitlebar ? "true" : "false");
 
@@ -230,6 +230,7 @@ public abstract partial class Formedge
         {
             webview.AddScriptToExecuteOnDocumentCreatedAsync(_windowStyleSettings.WindowSpecifiedJavaScript);
         }
+
 
         OnLoad();
     }
