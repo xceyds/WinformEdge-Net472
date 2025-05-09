@@ -12,6 +12,7 @@ public abstract partial class Formedge
 
         public bool Activated { get; set; }
         public string WindowState => _formedge.Fullscreen ? "fullscreen" : _formedge.WindowState.ToString().ToLower();
+        public bool HasTitleBar => _formedge.HasSystemTitlebar;
 
         public string FormedgeVersion => typeof(Formedge).Assembly.GetName().Version?.ToString() ?? string.Empty;
 

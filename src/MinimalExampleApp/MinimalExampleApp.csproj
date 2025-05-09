@@ -20,9 +20,8 @@
 
         <!--<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <PublishAot>true</PublishAot>
-        <_SuppressWinFormsTrimError>true</_SuppressWinFormsTrimError>
-        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-        <TrimMode>partial</TrimMode>-->
+        <_SuppressWinFormsTrimError>true</_SuppressWinFormsTrimError>-->
+
 
     </PropertyGroup>
 
@@ -33,10 +32,5 @@
     <ItemGroup>
         <ProjectReference Include="..\WinFormedge\WinFormedge.csproj" />
     </ItemGroup>
-    
-    
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
-    </ItemGroup>
 </Project>
