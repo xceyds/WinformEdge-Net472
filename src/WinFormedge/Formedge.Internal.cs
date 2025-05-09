@@ -238,6 +238,8 @@ public abstract partial class Formedge
     {
         try
         {
+            
+
             var jsdoc = JsonDocument.Parse(e.WebMessageAsJson);
             if (jsdoc == null || jsdoc.RootElement.ValueKind != JsonValueKind.Object)
             {
@@ -410,6 +412,8 @@ public abstract partial class Formedge
                 state = _currentWindowStateString
             }));
         }
+
+        
 
         WebView.Browser.PostWebMessageAsJson(JsonSerializer.Serialize(new
         {

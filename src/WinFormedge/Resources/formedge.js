@@ -58,6 +58,45 @@
         });
     }
 
+    function onFormedgeNotifyWindowActivated(data) {
+        if (data.state === undefined) return;
+
+        const { state } = data;
+        const htmlEl = document.querySelector("html");
+
+        if (state) {
+            raiseHostWindowEvent("windowactivated", {});
+        }
+        else {
+            raiseHostWindowEvent("windowdeactivate", {});
+        }
+
+        htmlEl?.classList.toggle("window--activated", state);
+        htmlEl?.classList.toggle("window--deactivated", !state);
+    }
+
+    function onFormedgeNotifyWindowStateChange(data) {
+        const { state } = data;
+        if (!state) return;
+
+        raiseHostWindowEvent("windowstatechange", { state });
+
+        const htmlEl = document.querySelector("html");
+        htmlEl?.classList.toggle("window--maximized", state === "maximized");
+        htmlEl?.classList.toggle("window--minimized", state === "minimized");
+        htmlEl?.classList.toggle("window--fullscreen", state === "fullscreen");
+    }
+
+    function onFormedgeNotifyWindowResize(data) {
+        const { x, y, width, height } = data;
+        raiseHostWindowEvent("windowresize", { x, y, width, height });
+    }
+
+    function onFormedgeNotifyWindowMove(data) {
+        const { x, y, screenX, screenY } = data;
+        raiseHostWindowEvent("windowmove", { x, y, screenX, screenY });
+    }
+
     window.addEventListener("load", () => {
 
         const htmlEl = document.querySelector("html");
@@ -157,107 +196,140 @@
 
     });
 
-    function onFormedgeNotifyWindowActivated(data) {
-        if (data.state === undefined) return;
 
-        const { state } = data;
-        const htmlEl = document.querySelector("html");
 
-        if (state) {
-            raiseHostWindowEvent("windowactivated", {});
-        }
-        else {
-            raiseHostWindowEvent("windowdeactivate", {});
-        }
-
-        htmlEl?.classList.toggle("window--activated", state);
-        htmlEl?.classList.toggle("window--deactivated", !state);
+    function getHostWindow() {
+        if (!window.chrome?.webview?.hostObjects?.sync?.hostWindow) return;
+        return window.chrome?.webview?.hostObjects?.sync?.hostWindow
     }
 
-    function onFormedgeNotifyWindowStateChange(data) {
-        const { state } = data;
-        if (!state) return;
-
-        raiseHostWindowEvent("windowstatechange", { state });
-
-        const htmlEl = document.querySelector("html");
-        htmlEl?.classList.toggle("window--maximized", state === "maximized");
-        htmlEl?.classList.toggle("window--minimized", state === "minimized");
-        htmlEl?.classList.toggle("window--fullscreen", state === "fullscreen");
+    function hostWindowMinimize() {
+        const win = getHostWindow();
+        if (!win) return;
+        
+        win.Minimize();
     }
 
-    function onFormedgeNotifyWindowResize(data) {
-        const { x, y, width, height } = data;
-        raiseHostWindowEvent("windowresize", { x, y, width, height });
+    function hostWindowMaximize() {
+        const win = getHostWindow();
+        if (!win) return;
+        win.Maximize();
     }
 
-    function onFormedgeNotifyWindowMove(data) {
-        const { x, y, screenX, screenY } = data;
-        raiseHostWindowEvent("windowmove", { x, y, screenX, screenY });
+    function hostWindowRestore() {
+        const win = getHostWindow();
+        if (!win) return;
+        win.Restore();
+    }
+    function hostWindowFullscreen() {
+        const win = getHostWindow();
+        if (!win) return;
+        win.Fullscreen();
+    }
+    function hostWindowToggleFullscreen() {
+        const win = getHostWindow();
+        if (!win) return;
+        win.ToggleFullscreen();
+    }
+    function hostWindowClose() {
+        const win = getHostWindow();
+        if (!win) return;
+        win.Close();
+    }
+    function hostWindowActivate() {
+        const win = getHostWindow();
+        if (!win) return;
+        win.Activate();
     }
 
-    const hostWindow = {
-        minimize: async () => {
-            if (!window.chrome?.webview?.hostObjects?.hostWindow) return;
-            var win = window.chrome?.webview?.hostObjects?.hostWindow;
-            await win.Minimize();
-        },
-        maximize: async () => {
-            if (!window.chrome?.webview?.hostObjects?.hostWindow) return;
-            var win = window.chrome?.webview?.hostObjects?.hostWindow;
-            await win.Maximize();
-        },
-        restore: async () => {
-            if (!window.chrome?.webview?.hostObjects?.hostWindow) return;
-            var win = window.chrome?.webview?.hostObjects?.hostWindow;
-            await win.Restore();
-        },
-        fullscreen: async () => {
-            if (!window.chrome?.webview?.hostObjects?.hostWindow) return;
-            var win = window.chrome?.webview?.hostObjects?.hostWindow;
-            await win.Fullscreen();
-        },
-        toggleFullscreen: async () => {
-            if (!window.chrome?.webview?.hostObjects?.hostWindow) return;
-            var win = window.chrome?.webview?.hostObjects?.hostWindow;
-            await win.ToggleFullscreen();
-        },
-        close: async () => {
-            if (!window.chrome?.webview?.hostObjects?.hostWindow) return;
-            var win = window.chrome?.webview?.hostObjects?.hostWindow;
-            await win.Close();
-        },
-        activate: async () => {
-            if (!window.chrome?.webview?.hostObjects?.hostWindow) return;
-            var win = window.chrome?.webview?.hostObjects?.hostWindow;
-            await win.Activate();
-        }
-    };
 
-    Object.defineProperty(hostWindow, "activated", {
-        async get() {
-            if (!window.chrome?.webview?.hostObjects?.hostWindow) return;
-            var win = window.chrome?.webview?.hostObjects?.hostWindow;
-            return await win.Activated;
-        }
-    });
+    function getHostWindowActivated() {
+        const win = getHostWindow();
+        if (!win) return;
+        return win.Activated;
+    }
 
-    Object.defineProperty(hostWindow, "hasTitleBar", {
-        async get() {
-            if (!window.chrome?.webview?.hostObjects?.hostWindow) return;
-            var win = window.chrome?.webview?.hostObjects?.hostWindow;
-            return await win.HasTitleBar;
-        }
-    });
+    function getHostWindowState() {
+        const win = getHostWindow();
+        if (!win) return;
+        return win.WindowState;
+    }
 
-    Object.defineProperty(hostWindow, "windowState", {
-        async get() {
-            if (!window.chrome?.webview?.hostObjects?.hostWindow) return;
-            var win = window.chrome?.webview?.hostObjects?.hostWindow;
-            return await win.WindowState;
-        }
-    });
+    function getHostWindowHasTitleBar() {
+        const win = getHostWindow();
+        if (!win) return;
+        return win.HasTitleBar;
+    }
 
-    window["hostWindow"] = hostWindow;
+
+
+    class HostWindow {
+        get activated() {
+            return getHostWindowActivated();
+        }
+
+        get hasTitleBar() {
+            return getHostWindowHasTitleBar();
+        }
+
+        get windowState() {
+            return getHostWindowState();
+        }
+
+        activate() {
+            hostWindowActivate();
+        }
+
+        minimize() {
+            hostWindowMinimize();
+        }
+
+        maximize() {
+            hostWindowMaximize();
+        }
+
+        restore() {
+            hostWindowRestore();
+        }
+
+        fullscreen() {
+            hostWindowFullscreen();
+        }
+
+        toggleFullscreen() {
+            hostWindowToggleFullscreen();
+        }
+
+        close() {
+            hostWindowClose();
+        }
+    }
+
+    function getWinFormedgeVersion() {
+        const win = getHostWindow();
+        if (!win) return;
+        return win.FormedgeVersion;
+    }
+
+    function getChromiumVersion() {
+        const win = getHostWindow();
+        if (!win) return;
+        return win.ChromiumVersion;
+    }
+
+    class Formedge {
+
+        version = {
+            get Formedge() {
+                return getWinFormedgeVersion();
+            },
+            get Chromium() {
+                return getChromiumVersion();
+            }
+        }
+    }
+
+    window["formedge"] = new Formedge();
+    window["hostWindow"] = new HostWindow();
 
 })(window)
