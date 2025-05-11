@@ -1,4 +1,4 @@
-<p align="center">
+﻿<p align="center">
     <img src="./artworks/WinFormedgeLogo.png" width="144" />
 </p>
 <h1 align="center">WinFormedge 项目</h1>
@@ -11,7 +11,7 @@
 ![Nuget](https://img.shields.io/nuget/dt/WinFormedge)
 [![Build](https://github.com/XuanchenLin/WinFormedge/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/XuanchenLin/WinFormedge/actions/workflows/dotnet-desktop.yml)
 
-For `English`, please click [[HERE](README.md)] to switch.
+For the `English` language repo, please click [[HERE](https://github.com/XuanchenLin/WinFormedge)] to switch.
 
 ## ✨ 简介
 

@@ -11,7 +11,7 @@
 ![Nuget](https://img.shields.io/nuget/dt/WinFormedge)
 [![Build](https://github.com/XuanchenLin/WinFormedge/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/XuanchenLin/WinFormedge/actions/workflows/dotnet-desktop.yml)
 
-点击[[此处](README.md)]切换到`中文`介绍页面。
+点击[[此处](https://gitee.com/linxuanchen/WinFormedge)]切换到`中文`仓库页面。
 
 ## ✨ About
 
