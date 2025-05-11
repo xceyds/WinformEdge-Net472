@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Formedge Calculator</title>
+    <link href="bootstrap.min.css" rel="stylesheet" />
+    <link href="style.css" rel="stylesheet" />
+    <script src="jquery-3.1.1.min.js"></script>
+    <script src="calculator.js"></script>
+</head>
+<body>
+    <div id="command-buttons">
+        <div id="miniBtn" app-command="minimize"></div>
+        <div id="closeBtn" app-command="close"></div>
+    </div>
+
+    <div class="unselectable" id="calculator">
+        <div class="top">
+            <div id="display">0</div>
+        </div>
+        <div class="keys">
+            <span class="btn operator">+</span>
+            <span class="btn operator">-</span>
+            <span class="btn operator">×</span>
+            <span class="btn operator">÷</span>
+            <span class="btn number">7</span>
+            <span class="btn number">8</span>
+            <span class="btn number">9</span>
+            <span class="btn operator">√</span>
+            <span class="btn number">4</span>
+            <span class="btn number">5</span>
+            <span class="btn number">6</span>
+            <span class="btn operator">x<sup>y</sup></span>
+            <span class="btn number">1</span>
+            <span class="btn number">2</span>
+            <span class="btn number">3</span>
+            <span class="btn " id="pnsign">+/-</span>
+            <span class="btn number">0</span>
+            <span class="btn number">.</span>
+            <span class="btn operator" id="eval">=</span>
+            <span class="btn clear">C</span>
+        </div>
+    </div>
+</body>
+</html>

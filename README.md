@@ -11,6 +11,8 @@
 
 The inspiration behind WinFormedge comes from another project I maintain: **[WinFormium](https://github.com/xuanchenlin/NanUI)** (also known as **NanUI**). Like WinFormedge, WinFormium lets developers build WinForms applications using web technologies—but unlike WinFormedge, it relies on the **Chromium Embedded Framework (CEF)**.  
 
+![PREVIEW](./docs/preview1.png)
+
 ## 🖥️ Requirements
 
 **Development Environment:**
@@ -171,7 +173,7 @@ Contributions are welcome! If you have any ideas, suggestions, or bug reports, p
 
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
 
-## Acknowledgements
+## 🧭 Acknowledgements
 
 - [Microsoft WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/)
 - [Chromium Embedded Framework](https://bitbucket.org/chromiumembedded/cef)

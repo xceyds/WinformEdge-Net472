@@ -41,7 +41,7 @@ internal class FeaturesWindow : Formedge
 
     private void MyWindow_Load(object? sender, EventArgs e)
     {
-        
+
     }
 
     private void MyWindow_DOMContentLoaded(object? sender, CoreWebView2DOMContentLoadedEventArgs e)

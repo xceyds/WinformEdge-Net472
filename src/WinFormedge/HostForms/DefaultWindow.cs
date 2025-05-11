@@ -25,6 +25,7 @@ internal class DefaultWindow : FormBase
         SystemMenu = settings.SystemMenu;
         ShadowDecorated = settings.ShowWindowDecorators;
         WindowEdgeOffsets = settings.WindowEdgeOffsets;
+        Resizable = settings.Resizable;
 
         //if (!settings.Size.IsEmpty)
         //{
@@ -52,7 +53,7 @@ internal class DefaultWindow : FormBase
         //}
         //Text = settings.WindowCaption;
         //Resizable = settings.Resizable;
-        //MaximizeBox = settings.Maximizable;
+        //MaximizeBox = settings;
         //MinimizeBox = settings.Minimizable;
         //TopMost = settings.TopMost;
         //WindowState = settings.WindowState;
