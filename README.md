@@ -24,32 +24,6 @@ This is a **Windows ONLY** library. It is not compatible with other operating sy
 
 The minimum supported operating system is Windows 10 version 1903 (May 2019 Update). And some fetures such as SystemBackdrop and SystemColorMode are only available on Windows 11.
 
-## 📋 Milestones
-
-The project is currently in the early stages of development. The following milestones are planned for the project:
-
-- [ ] Implement features of the Form
-    - [x] Default Form
-    - [x] Borderless Form
-    - [x] Fullscreen mode
-    - [x] System color mode
-    - [X] SystemBackdrop
-    - [ ] DirectCompostion Visual Tree (for CoreWebView2CompositionController)
-- [ ] Implement features of the WebView
-    - [x] WebView2Environment
-    - [x] WebView2Controller
-    - [x] Interfaces of WebView2 like WebView2 Control for WinForm
-    - [x] Custom Context Menu
-    - [x] AppRegion support
-    - [x] Resizing and Moving actions on Borderless Form
-    - [X] Embedded File Resources for WebResourceRequest & WebResourceResponse
-    - [ ] Proxy File Resources for WebResourceRequest & WebResourceResponse
-- [ ] JavaScript Interop
-    - [x] ExecuteScriptAsync
-    - [x] AddScriptToExecuteOnDocumentCreated
-    - [x] Internal window host object
-    - [x] JavaScript to C# Interop
-
 ## 🧩 Changelog
 
 The changelog for the WinFormedge project is available in the [CHANGELOG.md](./CHANGELOG.md) file. It contains a detailed list of changes, bug fixes, and new features added to the project. The changelog is updated regularly to reflect the latest changes in the project.
@@ -63,7 +37,7 @@ When the project is released, it will be available on NuGet. You can install it 
     
 ## 🪄 Getting Started
 
-### Create a WinForm Application by using default project template
+First of all, you should create a WinForm Application by using default project template.
 
 **1. Replace initialization code by using WinFormedge application initialization procedure.**
 
