@@ -4,6 +4,11 @@
 <h1 align="center">The WinFormedge Project</h1>
 <p align="center">This is a .NET library based on Microsoft WebView2 that can buid powerful WinForm applications with HTML, CSS and JavaScript easily.</p>
 
+## WinFormedge
+![GitHub](https://img.shields.io/github/license/XuanchenLin/WinFormedge)
+![Nuget](https://img.shields.io/nuget/v/WinFormedge)
+![Nuget](https://img.shields.io/nuget/dt/WinFormedge)
+[![Build](https://github.com/XuanchenLin/WinFormedge/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/XuanchenLin/WinFormedge/actions/workflows/dotnet-desktop.yml)
 
 ## ✨ About
 
