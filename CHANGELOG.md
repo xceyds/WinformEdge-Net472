@@ -1,5 +1,11 @@
 ﻿## Change Logs
 
+### 2025/5/11
+
+添加了一个新的示例项目 `FantasticCalculatorDemo`，展示了半透明混合效果。
+
+![2025/5/11](./screenshots/2025-5-11_165300.png)
+
 ### 2025/5/9
 
 更新 WebView2 到 1.0.3240.44 版本，并且优化了 Formedge 的 JavaScript 前端代码。

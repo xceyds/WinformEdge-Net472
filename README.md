@@ -11,6 +11,8 @@
 
 The inspiration behind WinFormedge comes from another project I maintain: **[WinFormium](https://github.com/xuanchenlin/NanUI)** (also known as **NanUI**). Like WinFormedge, WinFormium lets developers build WinForms applications using web technologies—but unlike WinFormedge, it relies on the **Chromium Embedded Framework (CEF)**.  
 
+![PREVIEW](./docs/preview1.png)
+
 ## 🖥️ Requirements
 
 **Development Environment:**
@@ -23,32 +25,6 @@ The inspiration behind WinFormedge comes from another project I maintain: **[Win
 This is a **Windows ONLY** library. It is not compatible with other operating systems.
 
 The minimum supported operating system is Windows 10 version 1903 (May 2019 Update). And some fetures such as SystemBackdrop and SystemColorMode are only available on Windows 11.
-
-## 📋 Milestones
-
-The project is currently in the early stages of development. The following milestones are planned for the project:
-
-- [ ] Implement features of the Form
-    - [x] Default Form
-    - [x] Borderless Form
-    - [x] Fullscreen mode
-    - [x] System color mode
-    - [X] SystemBackdrop
-    - [ ] DirectCompostion Visual Tree (for CoreWebView2CompositionController)
-- [ ] Implement features of the WebView
-    - [x] WebView2Environment
-    - [x] WebView2Controller
-    - [x] Interfaces of WebView2 like WebView2 Control for WinForm
-    - [x] Custom Context Menu
-    - [x] AppRegion support
-    - [x] Resizing and Moving actions on Borderless Form
-    - [X] Embedded File Resources for WebResourceRequest & WebResourceResponse
-    - [ ] Proxy File Resources for WebResourceRequest & WebResourceResponse
-- [ ] JavaScript Interop
-    - [x] ExecuteScriptAsync
-    - [x] AddScriptToExecuteOnDocumentCreated
-    - [x] Internal window host object
-    - [x] JavaScript to C# Interop
 
 ## 🧩 Changelog
 
@@ -197,7 +173,7 @@ Contributions are welcome! If you have any ideas, suggestions, or bug reports, p
 
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
 
-## Acknowledgements
+## 🧭 Acknowledgements
 
 - [Microsoft WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/)
 - [Chromium Embedded Framework](https://bitbucket.org/chromiumembedded/cef)

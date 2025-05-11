@@ -26,6 +26,7 @@ public abstract class WindowSettings
     //public bool AllowFullScreen { get; set; } = false;
     //public bool ShowInTaskbar { get; set; } = true;
     public abstract bool Fullscreen { get; set; }
+    public bool Resizable { get; set; } = true;
     //public bool AllowSystemMenuOnNonClientRegion { get; set; } = true;
     //public Color BackColor { get; set; } = FormedgeApp.Current.IsDarkMode ? Color.DimGray : Color.White;
 
