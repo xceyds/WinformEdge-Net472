@@ -5,26 +5,31 @@
 <p align="center">This is a .NET library based on Microsoft WebView2 that can buid powerful WinForm applications with HTML, CSS and JavaScript easily.</p>
 
 ## WinFormedge
+
 ![GitHub](https://img.shields.io/github/license/XuanchenLin/WinFormedge)
 ![Nuget](https://img.shields.io/nuget/v/WinFormedge)
 ![Nuget](https://img.shields.io/nuget/dt/WinFormedge)
 [![Build](https://github.com/XuanchenLin/WinFormedge/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/XuanchenLin/WinFormedge/actions/workflows/dotnet-desktop.yml)
 
+点击[[此处](README.md)]切换到`中文`介绍页面。
+
 ## ✨ About
 
-**WinFormedge** is an open-source .NET library built on **Microsoft WebView2**, enabling developers to create modern, visually appealing WinForms applications using **HTML, CSS, and JavaScript**. With WinFormedge, you can seamlessly integrate web technologies into your WinForm projects, allowing for rich and interactive user interfaces.  
+**WinFormedge** is an open-source .NET library built on **Microsoft WebView2**, enabling developers to create modern, visually appealing WinForms applications using **HTML, CSS, and JavaScript**. With WinFormedge, you can seamlessly integrate web technologies into your WinForm projects, allowing for rich and interactive user interfaces.
 
-The inspiration behind WinFormedge comes from another project I maintain: **[WinFormium](https://github.com/xuanchenlin/NanUI)** (also known as **NanUI**). Like WinFormedge, WinFormium lets developers build WinForms applications using web technologies—but unlike WinFormedge, it relies on the **Chromium Embedded Framework (CEF)**.  
+The inspiration behind WinFormedge comes from another project I maintain: **[NanUI](https://github.com/xuanchenlin/NanUI)**. Like WinFormedge, NanUI lets developers build WinForms applications using web technologies. But unlike WinFormedge, it relies on the **Chromium Embedded Framework (CEF)**.
 
 ![PREVIEW](./docs/preview1.png)
 
 ## 🖥️ Requirements
 
 **Development Environment:**
+
 - Visual Studio 2022
 - .NET 8.0 or higher
 
 **Deployment Environment:**
+
 - Windows 10 1903 or higher
 
 This is a **Windows ONLY** library. It is not compatible with other operating systems.
@@ -37,11 +42,12 @@ The changelog for the WinFormedge project is available in the [CHANGELOG.md](./C
 
 ## 🔧 Installation
 
-The release of WinFormedge library is not available yet and it will be on NuGet soon after the first release. if you want to try it, you can build the library by using the source code in this moment.
+The WinFormedge library has now set up automated NuGet publishing on GitHub, so you can find the latest release of WinFormedge on NuGet. Simply search for and install the `WinFormedge` package using the NuGet Package Manager or any other NuGet management tool.
 
-When the project is released, it will be available on NuGet. You can install it by using the NuGet Package Manager in Visual Studio.
+```bash
+PM> Install-Package WinFormedge
+```
 
-    
 ## 🪄 Getting Started
 
 First of all, you should create a WinForm Application by using default project template.
@@ -73,7 +79,6 @@ internal static class Program
 
 When the `FormedgeApp` class is created, it will automatically initialize the WebView2 environment and run the message loop.
 
-
 **2. Create a AppStartup class.**
 
 The `AppStartup` class is the entry point of your WinFormedge application. It provides methods for configuring the application. You can override the `OnApplicationLaunched` method to perform any initialization tasks before the application starts.
@@ -103,7 +108,8 @@ You can do some staffs like User Login, User Settings, etc. in the `OnApplicatio
 
 **3. Create a MainWindow class.**
 
-The `MainWindow` class is the main window of your application. It inherits from the `Formedge` class. You can use the `Formedge` class to create a window with a WebView2 control.
+The `MyWindow` class is the main window of your application. It inherits from the `Formedge` class. You can use the `Formedge` class to create a window with a WebView2 control.
+
 ```csharp
 using WinFormedge;
 using Microsoft.Web.WebView2.Core;
@@ -151,7 +157,9 @@ headerEl.style.appRegion="drag";
 }
 ```
 
-Codes above creates a `Formedge` window. By using `Url` property, you can set the initial URL of the window. Sets the `ExtendsContentIntoTitleBar` property to `true` to extend the WebView into the non-client area of the window to create a borderless window. You can also set the `Size` property to set the initial size of the window.
+Codes above creates a `Formedge` window. By using `Url` property, you can set the initial URL of the window.
+
+Default window properties can be set in the constructor. For special style properties of the window, you need to override the `ConfigureHostWindowSettings` method of the `Formedge` class and use its `HostWindowBuilder` parameter to determine which window style you will adopt, as well as configure the special styles that this window possesses. For example, in the sample code, by using the `UseDefaultWindow` method of the `HostWindowBuilder` parameter, you can instruct Formedge to create a default window and set its `ExtendsContentIntoTitleBar` property to achieve a borderless effect.
 
 The `Load` event is raised when the window and WebView2 are ready to use. You can use this event to perform any initialization tasks that require the WebView2 control to be ready.
 
@@ -159,16 +167,15 @@ The `DOMContentLoaded` event is raised when the DOM content is loaded and ready 
 
 **4. Run the application.**
 
-You can run the application by pressing `F5` in Visual Studio. The application will create a window with a WebView2 control that displays the Bing homepage. 
+You can run the application by pressing `F5` in Visual Studio. The application will create a window with a WebView2 control that displays the Bing homepage.
 
 ![PREVIEW](./docs/preview.png)
 
-You can drag the window by clicking and dragging the header element of the page and resize the window by dragging the edges of the window. 
+You can drag the window by clicking and dragging the header element of the page and resize the window by dragging the edges of the window.
 
 ## 📚 Documentation
 
 The documentation for the WinFormedge project is not available yet. However, you can find the source code and examples in the `src` and `examples` folders. The source code is well-documented and provides examples of how to use the WinFormedge library right now.
-
 
 ## 🛠️ Contributing
 
