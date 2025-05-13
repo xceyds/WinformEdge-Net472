@@ -654,6 +654,14 @@ public abstract class FormBase : Form
         base.DefWndProc(ref m);
     }
 
+    protected override void OnResize(EventArgs e)
+    {
+        base.OnResize(e);
+
+        PerformResizerVisiblity();
+
+    }
+
     const WINDOW_STYLE WINDOWED_STYLE = WINDOW_STYLE.WS_OVERLAPPEDWINDOW;
     const WINDOW_STYLE BORDERLESS_STYLE = WINDOW_STYLE.WS_OVERLAPPED | WINDOW_STYLE.WS_THICKFRAME | WINDOW_STYLE.WS_CAPTION | WINDOW_STYLE.WS_SYSMENU | WINDOW_STYLE.WS_MINIMIZEBOX | WINDOW_STYLE.WS_MAXIMIZEBOX;
     const WINDOW_STYLE FULL_SCREEN_STYLE = WINDOW_STYLE.WS_POPUP | WINDOW_STYLE.WS_SYSMENU | WINDOW_STYLE.WS_MINIMIZEBOX;
@@ -849,9 +857,10 @@ public abstract class FormBase : Form
 
         PerformResizerVisiblity();
     }
-
     private void PerformResizerVisiblity()
     {
+        if (_windowBorderResizer is null || !IsHandleCreated || RecreatingHandle) return;
+
         if (Resizable && !Fullscreen && (ExtendsContentIntoTitleBar || Popup) && WindowState == FormWindowState.Normal)
         {
             Controls.Add(_windowBorderResizer);
