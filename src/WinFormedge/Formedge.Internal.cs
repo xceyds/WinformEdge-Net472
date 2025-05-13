@@ -90,14 +90,16 @@ public abstract partial class Formedge
         return opts.UseDefaultWindow();
     }
 
+    protected virtual void OnContextMenuRequested(object? sender, CoreWebView2ContextMenuRequestedEventArgs e)
+    {
+    }
+
+
     protected virtual void OnActivated(object? sender, EventArgs e)
     {
         Activated?.Invoke(this, EventArgs.Empty);
     }
 
-    protected virtual void OnContextMenuRequested(object? sender, CoreWebView2ContextMenuRequestedEventArgs e)
-    {
-    }
 
     protected virtual void OnDeactivate(object? sender, EventArgs e)
     {
@@ -385,6 +387,8 @@ public abstract partial class Formedge
 
 
     }
+
+
     private void OnResizeCore(object? sender, EventArgs e)
     {
         if (Fullscreen) return;
@@ -549,7 +553,7 @@ public abstract partial class Formedge
 
     private void OnDocumentTitleChangedCore(object? sender, object e)
     {
-        UpdateFormText();
+        UpdateWindowCaption();
     }
 
     private void OnStatusBarTextChangedCore(object? sender, object e)

@@ -39,13 +39,16 @@ public partial class Formedge : IWin32Window
     public nint Handle => HostWindow.Handle;
     public Size Size { get => HostWindow.Size; set => HostWindow.Size = value; }
     public Point Location { get => HostWindow.Location; set => HostWindow.Location = value; }
+
+    private string _windowCaption = "WinFormedge";
+
     public string WindowCaption
     {
-        get => HostWindow.Text;
+        get => _windowCaption;
         set
         {
-            HostWindow.Text = value;
-            UpdateFormText();
+            _windowCaption = value;
+            UpdateWindowCaption();
         }
     }
     public bool Visible { get => HostWindow.Visible; set => HostWindow.Visible = value; }
@@ -114,7 +117,7 @@ public partial class Formedge : IWin32Window
 
     //public void CenterToScreen() => HostWindow.CenterToScreen();
 
-    protected virtual void UpdateFormText()
+    protected virtual void UpdateWindowCaption()
     {
         if (ShowDocumentTitle && !string.IsNullOrWhiteSpace(DocumentTitle))
         {
