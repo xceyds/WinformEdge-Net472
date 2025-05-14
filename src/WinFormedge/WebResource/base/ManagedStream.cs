@@ -1,4 +1,9 @@
-﻿namespace WinFormedge.WebResource;
+﻿// This file is part of the WinFormedge project.
+// Copyright (c) 2025 Xuanchen Lin all rights reserved.
+// This project is licensed under the MIT License.
+// See the LICENSE file in the project root for more information.
+
+namespace WinFormedge.WebResource;
 // https://learn.microsoft.com/zh-cn/microsoft-edge/webview2/concepts/working-with-local-content?tabs=dotnetcsharp
 class ManagedStream : Stream
 {

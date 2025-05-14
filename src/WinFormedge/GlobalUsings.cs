@@ -1,4 +1,9 @@
-﻿global using System;
+﻿// This file is part of the WinFormedge project.
+// Copyright (c) 2025 Xuanchen Lin all rights reserved.
+// This project is licensed under the MIT License.
+// See the LICENSE file in the project root for more information.
+
+global using System;
 global using System.Collections.Generic;
 global using System.IO;
 global using System.Linq;

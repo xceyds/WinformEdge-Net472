@@ -30,7 +30,7 @@ dotnet_search_reference_assemblies = true
 # 组织 Using
 dotnet_separate_import_directive_groups = true
 dotnet_sort_system_directives_first = true
-file_header_template = unset
+file_header_template = This file is part of the WinFormedge project.\nCopyright (c) 2025 Xuanchen Lin all rights reserved.\nThis project is licensed under the MIT License.\nSee the LICENSE file in the project root for more information.
 
 # this. 和 Me. 首选项
 dotnet_style_qualification_for_event = false
