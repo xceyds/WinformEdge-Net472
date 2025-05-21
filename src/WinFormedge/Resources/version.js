@@ -8,7 +8,12 @@
         console.log(`Copyrights (C) ${new Date().getFullYear()} Xuanchen Lin all rights reserved.`);
     }
 
-    window.addEventListener("load", () => {
+    if (document.readyState === "loading") {
+        window.addEventListener("DOMContentLoaded", () => {
+            showVersionLog();
+        });
+    }
+    else {
         showVersionLog();
-    });
+    }
 })();
