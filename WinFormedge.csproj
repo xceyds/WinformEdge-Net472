@@ -1,0 +1,75 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net472</TargetFramework>
+        <langversion>13.0</langversion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+        <UseWindowsForms>true</UseWindowsForms>
+        <!--<IsAotCompatible>true</IsAotCompatible>
+        <DebugType>portable</DebugType>
+        <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>-->
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3240.44" />
+        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="System.Reflection.Metadata" Version="9.0.5" />
+        <PackageReference Include="System.Text.Json" Version="9.0.5" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <Compile Update="Properties\Resources.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Resources.resx</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <EmbeddedResource Update="Properties\Resources.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+    </ItemGroup>
+
+    <PropertyGroup>
+        <Version>0.1.3240.$([System.DateTime]::Now.Date.Subtract($([System.DateTime]::Parse($([System.String]::Format("{0}-5-9",2025))))).TotalDays)</Version>
+        <Title>WinFormedge for Windows Form Applications</Title>
+        <Description>An open source library based on Microsoft WebView2 that can buid powerful WinForm applications with HTML, CSS and JavaScript easily.</Description>
+        <PackageTags>WebView2 WinForms WinFormedge Formedge Chromium Hybird-App</PackageTags>
+        <PackageIcon>WinFormedgeLogo.png</PackageIcon>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryType>git</RepositoryType>
+        <PackageProjectUrl>https://github.com/XuanchenLin/WinFormedge</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/XuanchenLin/WinFormedge.git</RepositoryUrl>
+        <PackageOutputPath>$(BinDir)</PackageOutputPath>
+        <DelaySign>False</DelaySign>
+        <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <SignAssembly>False</SignAssembly>
+        <DebugType>portable</DebugType>
+        <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="'$(Configuration)'=='Release'">
+        <Version>0.1.3240.4</Version>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <None Include=".\README.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
+</Project>

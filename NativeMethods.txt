@@ -1,0 +1,15 @@
+﻿WM_*
+CW_*
+CS_*
+HT*
+WVR_*
+HWND_*
+WMSZ_*
+
+NCCALCSIZE_PARAMS
+DWM_SYSTEMBACKDROP_TYPE
+
+User32.*
+GDI32.*
+Dwmapi.*
+
